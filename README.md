@@ -1,7 +1,7 @@
-# Karaciğer Nakli Sonrası Komplikasyonlar İçin Artırılmış Gerçeklik (AR) Uygulaması
+# Karaciğer nakli sonrası gelişen komplikasyonlar hakkında arttırılmış gerçeklik
 
 ## 1. Proje Başlığı
-**LIVER-AR: Karaciğer Nakli Sonrası Gelişen Komplikasyonların Artırılmış Gerçeklik ile Görselleştirilmesi ve Analizi**
+**Karaciğer nakli sonrası gelişen komplikasyonlar hakkında arttırılmış gerçeklik**
 
 ## 2. Proje Özeti
 Bu proje, karaciğer nakli operasyonu sonrasında hastalarda gelişebilecek vasküler (damar) ve biliyer (safra yolu) komplikasyonları Artırılmış Gerçeklik (AR) teknolojisi kullanarak modellemeyi ve görselleştirmeyi hedefler. Tıp eğitimi ve cerrahi planlama süreçlerine katkı sağlamak amacıyla geliştirilen bu uygulama, karmaşık anatomik yapıları 3 boyutlu olarak sunarak komplikasyonların daha iyi anlaşılmasını sağlar.

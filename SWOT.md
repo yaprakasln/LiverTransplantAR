@@ -1,4 +1,4 @@
-# SWOT ANALİZİ: Karaciğer Nakli AR Projesi
+# SWOT ANALİZİ: Karaciğer nakli sonrası gelişen komplikasyonlar hakkında arttırılmış gerçeklik
 
 Bu analiz, projenin mevcut durumunu, potansiyelini ve karşılaşabileceği riskleri değerlendirmek amacıyla hazırlanmıştır.
 
