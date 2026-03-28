@@ -1,0 +1,66 @@
+# Unity .gitignore
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+
+# MemoryCaptures can get very large
+/[Mm]emoryCaptures/
+
+# Asset meta data settings
+/[Aa]ssets/[Aa]ddressableAssetsData/*/*.bin*
+/[Aa]ssets/[Aa]ddressableAssetsData/*/*.json*
+
+# Visual Studio / Rider / Monodevelop
+.vs/
+.gradle/
+ExportedObj/
+.consulo/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Unity3D generated meta files
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Unity3D generated file
+sysinfo.txt
+
+# Android Studio / IntelliJ
+*.iml
+.idea/modules.xml
+.idea/libraries
+.idea/vcs.xml
+.idea/misc.xml
+.idea/modules
+.idea/workspace.xml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
