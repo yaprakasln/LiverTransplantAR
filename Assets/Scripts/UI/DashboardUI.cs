@@ -61,7 +61,7 @@ namespace LiverTransplantAR.UI
         private void UpdateRegenerationUI()
         {
             float percentage = Data.GrowthPercentage * 100f;
-            GrowthText.text = $"Regeneration: {percentage:F1}%";
+            GrowthText.text = $"Week {Data.SimulationWeek} - Regeneration: {percentage:F1}%";
             GrowthSlider.value = Data.GrowthPercentage;
         }
 
