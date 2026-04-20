@@ -2,13 +2,20 @@ using UnityEngine;
 
 namespace LiverTransplantAR.Data
 {
+    public enum AppFlowState { Intro, MainMenu, Scenario_Recovery, Scenario_Medication }
+
     [CreateAssetMenu(fileName = "NewSimulationState", menuName = "LiverAR/SimulationState")]
     public class SimulationState : ScriptableObject
     {
+        [Header("Flow Control")]
+        public AppFlowState CurrentMode = AppFlowState.Intro;
+
         [Header("Regeneration Status")]
-        [Range(0.4f, 1.0f)]
-        public float GrowthPercentage = 0.4f;
-        public float BaseRegenerationRate = 0.01f; // Speed of growth per tick
+        [Range(0.3f, 1.0f)]
+        public float GrowthPercentage = 0.3f;
+        public float BaseRegenerationRate = 0.005f; // Speed of growth per tick
+        public int SimulationWeek = 1;              // Current week in simulation
+        public bool HasTransplant = false;          // True if transplant, False if resection (%30)
 
         [Header("Medication & Immunology")]
         public bool IsAdherent = true;
@@ -28,7 +35,9 @@ namespace LiverTransplantAR.Data
 
         public void ResetToDefault()
         {
-            GrowthPercentage = 0.4f;
+            GrowthPercentage = HasTransplant ? 0.4f : 0.3f; // Transplant starts with more
+            SimulationWeek = 1;
+            HasTransplant = false;
             IsAdherent = true;
             ImmuneAttack = false;
             HealthPoints = 100f;
