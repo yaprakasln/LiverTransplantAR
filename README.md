@@ -39,7 +39,7 @@ Nakil sonrası hayat kalitesini artırmak için yapılması gerekenler.
 ---
 
 ## 👥 Ekip Üyeleri
-- **Yaprak ASLAN**
+- **Yaprak ASLAN(Scrum Master)**
 - **Yusuf DOĞAN**
 - **Ebrar Sena MANGAN**
 - **Asiye KAYMAK**
