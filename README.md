@@ -1,53 +1,50 @@
-# Karaciğer nakli sonrası gelişen komplikasyonlar hakkında arttırılmış gerçeklik
+# 🫁 LiverTransplantAR: Karaciğer Nakli Sonrası Yaşam Simülasyonu
 
-## 1. Proje Başlığı
-**Karaciğer nakli sonrası gelişen komplikasyonlar hakkında arttırılmış gerçeklik**
+**LiverTransplantAR**, karaciğer nakli operasyonu sonrasında hastaları bekleyen süreçleri, karşılaşılabilecek komplikasyonları ve sağlıklı bir yaşam için gereken adımları **Arttırılmış Gerçeklik (AR)** teknolojisi ile görselleştiren interaktif bir eğitim platformudur.
 
-## 2. Proje Özeti
-Bu proje, karaciğer nakli operasyonu sonrasında hastalarda gelişebilecek vasküler (damar) ve biliyer (safra yolu) komplikasyonları Artırılmış Gerçeklik (AR) teknolojisi kullanarak modellemeyi ve görselleştirmeyi hedefler. Tıp eğitimi ve cerrahi planlama süreçlerine katkı sağlamak amacıyla geliştirilen bu uygulama, karmaşık anatomik yapıları 3 boyutlu olarak sunarak komplikasyonların daha iyi anlaşılmasını sağlar.
+---
 
-## 3. Problem Tanımı
-Karaciğer nakli sonrası gelişen komplikasyonlar (örneğin hepatik arter trombozu, safra yolu darlıkları) hayati risk taşımaktadır. Ancak bu komplikasyonların anatomik olarak nerede ve nasıl geliştiğinin 2 boyutlu CT/MRI görüntüleri üzerinden tam olarak kavranması, tıp öğrencileri ve asistanlar için zorlayıcı olabilmektedir. Mevcut eğitim materyallerinin statik kalması ve etkileşim eksikliği, bu kritik alandaki öğrenme sürecini yavaşlatmaktadır.
+## 🚀 Proje Senaryoları
 
-## 4. Amaçlar
-- Karaciğer nakli sonrası sık görülen komplikasyonların (rejeksiyon, biliyer darlık, vasküler tıkanıklık) 3B modellerini oluşturmak.
-- Bu modellerin Artırılmış Gerçeklik ortamında, gerçek dünya ölçeklerine uygun şekilde incelenmesini sağlamak.
-- Tıp öğrencileri için etkileşimli bir simülasyon ortamı yaratarak anatomik farkındalığı artırmak.
-- Ameliyat sonrası takip süreçlerinde cerrahlar için hızlı bir görsel referans oluşturmak.
+Uygulama, kullanıcının seçimlerine göre şekillenen 4 ana senaryo üzerinden ilerler:
 
-## 5. Temel Kavramlar
-- **Artırılmış Gerçeklik (AR):** Gerçek dünya görüntüsü üzerine bilgisayar tarafından oluşturulan grafiklerin bindirilmesi teknolojisi.
-- **Hepatik Arter Trombozu:** Karaciğeri besleyen ana damarın pıhtı ile tıkanması durumu.
-- **Biliyer Komplikasyon:** Safra yollarında oluşan kaçak veya darlıklar.
-- **Graft Rejeksiyonu:** Nakledilen organın vücut tarafından reddedilme süreci.
+### 1. 🌱 Onarım Süreci (Recovery Phase)
+Karaciğerin mucizevi kendini yenileme (rejenerasyon) yeteneği görselleştirilir.
+- **Odak:** Nakil edilen karaciğer parçasının, operasyon sonrası ilk haftalarda nasıl hızla büyüyüp fonksiyonlarını tamamladığı 3B model üzerinde gösterilir.
+- **Görsel:** Karaciğerin fiziksel olarak büyümesi ve damarlanma (vascularization) süreci.
 
-## 6. Kullanılan Teknolojiler
-- **Unity 3D:** Uygulama geliştirme motoru.
-- **Vuforia / AR Foundation:** AR takip ve görüntüleme kütüphaneleri.
-- **C#:** Programlama dili.
-- **Blender:** 3D modelleme ve animasyon (anatomik modeller için).
-- **GitHub:** Versiyon kontrol sistemi.
-- **Trello:** Proje yönetim aracı.
+### 2. 💊 İlaç Uyumu (Medication Adherence)
+İlaç kullanımının hayati önemi simüle edilir.
+- **İyi Senaryo:** İlaçların düzenli alınması durumunda karaciğerin sağlıklı büyümesi ve doku bütünlüğünün korunması.
+- **Kötü Senaryo:** İlaçların aksatılması durumunda karaciğerin kendini onaramaması ve doku bozulmalarının başlaması.
 
-## 7. Proje Kapsamı
-Proje, karaciğer anatomisinin 3D modellemesini, en sık görülen 3 ana komplikasyonun (Vasküler, Biliyer, İmmünolojik) AR üzerinden seçilerek görselleştirilmesini ve bu komplikasyonlara dair kısa teknik bilgi notlarının ekranda sunulmasını kapsar. Hastane otomasyon sistemleri ile entegrasyon bu aşamada kapsam dışıdır.
+### 3. ⚠️ Uyumsuzluk ve Red (Incompatibility/Rejection)
+Vücudun yeni organı reddetme süreci (rejeksiyon) ve bu sırada meydana gelen fizyolojik değişiklikler.
+- **İçerik:** Organ reddi sırasında karaciğerde oluşan sararma (icterus), damar tıkanıklıkları ve hastanın yaşayabileceği semptomlar.
+- **Görsel:** Sağlıksız doku rengi değişimleri ve vasküler komplikasyon modellemeleri.
 
-## 8. Beklenen Çıktılar
-- Bir mobil AR uygulaması prototipi (Android/iOS uyumlu).
-- 3B anatomik karaciğer ve komplikasyon modelleri kütüphanesi.
-- Projenin gelişim sürecini belgeleyen teknik rapor ve sunum dosyaları.
-- SWOT analizi ve proje yönetim raporu.
+### 4. 🍏 Yaşam Tarzı ve Sağlık (Lifestyle)
+Nakil sonrası hayat kalitesini artırmak için yapılması gerekenler.
+- **Odak:** Kişiye özel beslenme planları ve egzersiz rutinleri.
+- **İçerik:** Operasyon sonrası fiziksel aktivitenin karaciğer sağlığı üzerindeki olumlu etkileri ve beslenme önerileri.
 
-## 9. Katkıda Bulunanlar
+---
+
+## 🛠️ Teknik Özellikler
+- **AR Teknolojisi:** AR Foundation (ARCore/ARKit) ile gerçek dünya entegrasyonu.
+- **Görselleştirme:** URP (Universal Render Pipeline) tabanlı özel tıbbi shader'lar.
+- **Etkileşim:** Seçim tabanlı senaryo yönetimi (FlowManager).
+- **Platform:** Android & iOS (Mobil AR).
+
+---
+
+## 👥 Ekip Üyeleri
 - **Yaprak ASLAN**
 - **Yusuf DOĞAN**
 - **Ebrar Sena MANGAN**
 - **Asiye KAYMAK**
 
-## 10. Kaynaklar
-- Academic Literature on Liver Transplant Complications.
-- Unity Official Documentation & AR Foundation Manual.
-- Medical Anatomy Atlases (Sobotta, Netter).
+---
 
-## 11. Anahtar Kelimeler
-#KaraciğerNakli #ArtırılmışGerçeklik #TıpEğitimi #Unity3D #LiverTransplant #AR #KomplikasyonYönetimi
+##  Schlüsselwörter
+`#KaraciğerNakli` `#ArtırılmışGerçeklik` `#TıpEğitimi` `#Unity3D` `#LiverTransplant` `#Simulation`
