@@ -63,6 +63,16 @@ namespace LiverTransplantAR.UI
             if (DescriptionText != null) DescriptionText.text = "İlaçların düzenli kullanımı, vücudun yeni karaciğeri reddetmemesi için hayati önem taşır.";
         }
 
+        public void StartLifestyleScenario()
+        {
+            if (Data == null) return;
+            Data.CurrentMode = AppFlowState.Scenario_Lifestyle;
+            Data.ResetToDefault();
+            UpdateUI();
+            if (HeaderText != null) HeaderText.text = "Senaryo 4: Yaşam Tarzı ve Sağlık";
+            if (DescriptionText != null) DescriptionText.text = "Beslenme ve egzersiz alışkanlıklarının nakil sonrası karaciğer sağlığı üzerindeki etkilerini inceleyin.";
+        }
+
         private void UpdateUI()
         {
             // GLASSMORPHISM: Ensure panels are semi-transparent and don't block the liver
@@ -72,7 +82,7 @@ namespace LiverTransplantAR.UI
 
             if (IntroPanel != null) IntroPanel.SetActive(Data.CurrentMode == AppFlowState.Intro);
             if (MenuPanel != null) MenuPanel.SetActive(Data.CurrentMode == AppFlowState.MainMenu);
-            if (ScenarioPanel != null) ScenarioPanel.SetActive(Data.CurrentMode == AppFlowState.Scenario_Recovery || Data.CurrentMode == AppFlowState.Scenario_Medication);
+            if (ScenarioPanel != null) ScenarioPanel.SetActive(Data.CurrentMode == AppFlowState.Scenario_Recovery || Data.CurrentMode == AppFlowState.Scenario_Medication || Data.CurrentMode == AppFlowState.Scenario_Lifestyle);
         }
 
         private void ApplyGlassEffect(GameObject panel)
@@ -96,6 +106,14 @@ namespace LiverTransplantAR.UI
                 DescriptionText.text = "DİKKAT: İlaç alınmadığında iyileşme durur ve organ reddi süreci başlar!";
             else
                 DescriptionText.text = "İlaç alımı düzenli. İyileşme süreci devam ediyor.";
+        }
+
+        public void UpdateLifestyleFeedback(string feedbackMessage)
+        {
+            if (DescriptionText != null)
+            {
+                DescriptionText.text = feedbackMessage;
+            }
         }
     }
 }

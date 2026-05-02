@@ -8,6 +8,9 @@ Shader "Custom/Liver Professional (Realistic)"
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
         _IcterusIntensity("Icterus (Yellowing)", Range(0,1)) = 0
+        _SteatosisAmount("Steatosis (Fatty Liver)", Range(0,1)) = 0
+        _PulseAmount("Pulse Amount", Range(0,1)) = 0
+        _PulseColor("Pulse Color", Color) = (0,1,1,1)
     }
     SubShader
     {
@@ -50,6 +53,9 @@ Shader "Custom/Liver Professional (Realistic)"
                 float _Glossiness;
                 float _Metallic;
                 float _IcterusIntensity;
+                float _SteatosisAmount;
+                float _PulseAmount;
+                float4 _PulseColor;
             CBUFFER_END
 
             Varyings vert(Attributes input)
@@ -72,8 +78,10 @@ Shader "Custom/Liver Professional (Realistic)"
                 half4 baseColor = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv) * _BaseColor;
                 half4 rejectionColor = half4(0.8, 0.7, 0.1, 1.0); // Sickly yellow/green
                 
-                // Blend with icterus (rejection)
+                // Blend with icterus (rejection) and steatosis (fatty liver)
                 half4 finalColor = lerp(baseColor, rejectionColor, _IcterusIntensity);
+                half4 fattyColor = half4(0.9, 0.8, 0.4, 1.0); // Pale yellow for steatosis
+                finalColor = lerp(finalColor, fattyColor, _SteatosisAmount);
 
                 // --- Professional Lighting Polish ---
                 float3 normal = normalize(input.normalWS);
@@ -84,13 +92,16 @@ Shader "Custom/Liver Professional (Realistic)"
                 rim = pow(rim, 3.0);
                 half4 rimColor = half4(1, 1, 1, 1) * rim * 0.4;
                 
+                // --- AR Pulse Effect ---
+                half4 pulseGlow = _PulseColor * _PulseAmount * rim; // Only glow at edges for better AR look
+
                 // Fake Specular (Glossy wet look)
                 Light light = GetMainLight();
                 float3 halfVec = normalize(light.direction + viewDir);
                 float spec = pow(saturate(dot(normal, halfVec)), 32.0);
                 half4 specColor = half4(1, 1, 1, 1) * spec * _Glossiness;
 
-                return finalColor + rimColor + specColor;
+                return finalColor + rimColor + specColor + pulseGlow;
             }
             ENDHLSL
         }

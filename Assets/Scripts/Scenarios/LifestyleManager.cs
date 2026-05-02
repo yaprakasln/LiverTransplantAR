@@ -1,78 +1,87 @@
 using UnityEngine;
-using LiverTransplantAR.Data;
+using UnityEngine.UI;
+using TMPro;
 
 namespace LiverTransplantAR.Scenarios
 {
     public class LifestyleManager : MonoBehaviour
     {
-        public SimulationState Data;
-        public SkinnedMeshRenderer LiverRenderer;
-        
-        private MaterialPropertyBlock _propBlock;
+        public LiverTransplantAR.Data.SimulationState Data;
+        public LiverTransplantAR.UI.FlowManager FlowUI;
+
+        [Header("HUD References")]
+        public Image ASTGauge;
+        public Image ALTGauge;
+        public Image BiliGauge;
+
+        [Header("Visual References")]
+        public Renderer LiverRenderer;
+        public Color HealthyColor = new Color(0.6f, 0.1f, 0.1f);
+        public Color FattyColor = new Color(0.85f, 0.75f, 0.35f);
+
+        private float targetAST = 0.4f;
+        private float targetALT = 0.3f;
+        private float targetBili = 0.2f;
+        private Color targetColor;
 
         void Start()
         {
-            _propBlock = new MaterialPropertyBlock();
-            if (Data == null) Debug.LogError("SimulationData not assigned to LifestyleManager!");
+            targetColor = HealthyColor;
+            if (LiverRenderer == null) {
+                var visuals = GameObject.FindObjectOfType<ARVisualsController>();
+                if (visuals != null) LiverRenderer = visuals.GetComponentInChildren<Renderer>();
+            }
         }
 
         void Update()
         {
-            ProcessLifestyleEffects();
-            UpdateSteatosisVisuals();
-        }
+            // Smoothly update the gauges (HUD)
+            if (ASTGauge != null) ASTGauge.fillAmount = Mathf.Lerp(ASTGauge.fillAmount, targetAST, Time.deltaTime * 2f);
+            if (ALTGauge != null) ALTGauge.fillAmount = Mathf.Lerp(ALTGauge.fillAmount, targetALT, Time.deltaTime * 2f);
+            if (BiliGauge != null) BiliGauge.fillAmount = Mathf.Lerp(BiliGauge.fillAmount, targetBili, Time.deltaTime * 2f);
 
-        private void ProcessLifestyleEffects()
-        {
-            // Modifying growth rate based on lifestyle
-            float currentRate = Data.BaseRegenerationRate * Data.NutritionMultiplier * Data.ExerciseMultiplier;
-            
-            // If the liver is healthy (IsAdherent) and growing, increment growth
-            if (Data.IsAdherent && Data.GrowthPercentage < 1.0f)
+            // Smoothly change Liver Color
+            if (LiverRenderer != null)
             {
-                Data.GrowthPercentage += currentRate * Time.deltaTime;
+                Color currentColor = LiverRenderer.material.color;
+                LiverRenderer.material.color = Color.Lerp(currentColor, targetColor, Time.deltaTime * 1.5f);
             }
-            
-            // Limit growth at 100%
-            Data.GrowthPercentage = Mathf.Clamp(Data.GrowthPercentage, 0.4f, 1.0f);
         }
 
-        private void UpdateSteatosisVisuals()
-        {
-            if (LiverRenderer == null) return;
-            
-            LiverRenderer.GetPropertyBlock(_propBlock);
-            
-            // Steatosis (Fatty liver) texture overlay based on fatty diet
-            float steatosisTarget = Data.IsFattyDiet ? 1.0f : 0.0f;
-            float currentSteatosis = _propBlock.GetFloat("_SteatosisAmount");
-            
-            // Smoothly lerp towards target
-            float lerpedSteatosis = Mathf.Lerp(currentSteatosis, steatosisTarget, Time.deltaTime);
-            _propBlock.SetFloat("_SteatosisAmount", lerpedSteatosis);
-            
-            LiverRenderer.SetPropertyBlock(_propBlock);
-        }
-
-        // Methods for UI interaction
         public void SetHighProteinDiet()
         {
-            Data.NutritionMultiplier = 1.5f;
-            Data.IsFattyDiet = false;
-            Debug.Log("Lifestyle: High protein diet selected.");
+            Debug.Log("Lifestyle: High Protein Diet selected.");
+            targetAST = 0.25f; 
+            targetALT = 0.2f;
+            targetBili = 0.15f;
+            targetColor = HealthyColor;
         }
 
         public void SetHighFatDiet()
         {
-            Data.NutritionMultiplier = 0.8f;
-            Data.IsFattyDiet = true;
-            Debug.Log("Lifestyle: High fat diet selected.");
+            Debug.Log("Lifestyle: High Fat Diet selected.");
+            targetAST = 0.85f; 
+            targetALT = 0.9f;
+            targetBili = 0.75f;
+            targetColor = FattyColor;
         }
 
-        public void ToggleExercise(bool isActive)
+        public void ToggleExerciseTrue()
         {
-            Data.ExerciseMultiplier = isActive ? 1.3f : 1.0f;
-            Debug.Log($"Lifestyle: Exercise multiplier set to {Data.ExerciseMultiplier}");
+            Debug.Log("Lifestyle: Exercise ON.");
+            targetAST = Mathf.Max(0.1f, targetAST - 0.2f);
+            targetALT = Mathf.Max(0.1f, targetALT - 0.2f);
+            targetBili = Mathf.Max(0.1f, targetBili - 0.15f);
+        }
+
+        public void ToggleExerciseFalse()
+        {
+            Debug.Log("Lifestyle: Exercise OFF.");
+            if (targetColor == FattyColor)
+            {
+                targetAST = Mathf.Min(1.0f, targetAST + 0.1f);
+                targetALT = Mathf.Min(1.0f, targetALT + 0.1f);
+            }
         }
     }
 }
