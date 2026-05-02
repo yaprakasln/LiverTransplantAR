@@ -12,9 +12,17 @@ namespace LiverTransplantAR.Scenarios
         public int GrowthShapeIndex = 0;
         public int SwellingShapeIndex = 1;
 
+        [Header("UI Feedback")]
+        public TMPro.TMP_Text MainDescriptionText;
+        public TMPro.TMP_Text CellularBox;
+        public TMPro.TMP_Text VolumeBox;
+        public TMPro.TMP_Text FunctionalBox;
+
         [Header("VFX Settings")]
         public ParticleSystem VascularizationParticles;
         private MaterialPropertyBlock _propBlock;
+        private Renderer[] _childRenderers;
+        private Vector3[] _originalScales;
 
         void Start()
         {
@@ -31,8 +39,17 @@ namespace LiverTransplantAR.Scenarios
                 LiverRenderer = GetComponentInChildren<Renderer>();
             }
 
+            // FIND ALL CHILD SEGMENTS
+            _childRenderers = GetComponentsInChildren<Renderer>();
+            _originalScales = new Vector3[_childRenderers.Length];
+            for (int i = 0; i < _childRenderers.Length; i++) {
+                _originalScales[i] = _childRenderers[i].transform.localScale;
+            }
+
             // Set initial state
+            Data.CurrentMode = AppFlowState.Scenario_Recovery; // Ensure we are in the right mode
             Data.GrowthPercentage = Data.HasTransplant ? 0.4f : 0.3f;
+            UpdateGrowth(); // Trigger initial text
         }
 
         void Update()
@@ -54,35 +71,77 @@ namespace LiverTransplantAR.Scenarios
                 return; 
             }
 
-            // Scenario 1 & 2 Logic: First 4 weeks are faster
-            float weekMultiplier = Data.SimulationWeek <= 4 ? 2.0f : 1.0f;
-            
-            // Scenario 2: Only grow if medication is taken (IsAdherent)
-            if (Data.IsAdherent && Data.GrowthPercentage < 1.0f)
-            {
-                float regenerationAmount = Data.BaseRegenerationRate * weekMultiplier * Time.deltaTime;
-                Data.GrowthPercentage += regenerationAmount;
-            }
-            else if (!Data.IsAdherent && Data.CurrentMode == AppFlowState.Scenario_Medication)
-            {
-                // Bad Scenario: If not taking meds, health drops (optional logic)
-                Data.HealthPoints -= Time.deltaTime * 2f;
-                Data.ImmuneAttack = true;
+            string mainDesc = "";
+            string cellular = "";
+            string volume = "";
+            string functional = "";
+            float targetGrowth = 0.3f;
+
+            if (Data.SimulationWeek == 1) {
+                targetGrowth = 0.45f;
+                mainDesc = "<b>HAFTA 1:</b> Rejenerasyon Başlangıcı";
+                cellular = "Hücreler (hepatositler) 24 saat içinde hızla bölünmeye başlar.";
+                volume = "Hacim: %45\n(Başlangıç)";
+                functional = "Protein sentezi kısıtlı, dinlenme hayati önemde.";
+            } else if (Data.SimulationWeek == 2) {
+                targetGrowth = 0.65f;
+                mainDesc = "<b>HAFTA 2:</b> Vasküler Genişleme";
+                cellular = "Anjiyogenez (yeni damar oluşumu) en yüksek hızda.";
+                volume = "Hacim: %65\n(Hızlı Artış)";
+                functional = "Safra üretimi normale dönmeye başladı.";
+            } else if (Data.SimulationWeek == 3) {
+                targetGrowth = 0.85f;
+                mainDesc = "<b>HAFTA 4:</b> Fonksiyonel Olgunlaşma";
+                cellular = "Hücre bölünmesi yavaşlar, doku düzenlenmesi başlar.";
+                volume = "Hacim: %85\n(Neredeyse Tam)";
+                functional = "Kan süzme ve detoks kapasitesi %80'in üzerine çıktı.";
+            } else {
+                targetGrowth = 1.0f;
+                mainDesc = "<b>HAFTA 8+:</b> Tam İyileşme";
+                cellular = "Hücresel yapı stabil hale geldi.";
+                volume = "Hacim: %100\n(Orijinal Boyut)";
+                functional = "Karaciğer tüm fonksiyonlarını tam kapasite yerine getiriyor.";
             }
 
-            // --- Vertex Growth (Shader-based) ---
-            // We map 0.3-1.0 growth range to a small offset (0.0 to 0.05) to simulate expansion
-            float offset = Mathf.InverseLerp(0.3f, 1.0f, Data.GrowthPercentage) * 0.05f;
+            if (MainDescriptionText != null) MainDescriptionText.text = mainDesc;
+            if (CellularBox != null) CellularBox.text = cellular;
+            if (VolumeBox != null) VolumeBox.text = volume;
+            if (FunctionalBox != null) FunctionalBox.text = functional;
+
+            // Smooth Lerp to target growth
+            if (Data.IsAdherent)
+            {
+                Data.GrowthPercentage = Mathf.Lerp(Data.GrowthPercentage, targetGrowth, Time.deltaTime * 0.5f);
+            }
+            else if (Data.CurrentMode == AppFlowState.Scenario_Medication)
+            {
+                // Bad Scenario
+                Data.HealthPoints -= Time.deltaTime * 2f;
+                Data.ImmuneAttack = true;
+                if (MainDescriptionText != null) MainDescriptionText.text = "<color=red>DİKKAT: İlaç aksatıldı!</color>";
+            }
+
+            // --- Segmented Growth (New Approach) ---
+            float offset = Mathf.InverseLerp(0.3f, 1.0f, Data.GrowthPercentage) * 0.015f;
+            float healthDarkening = Mathf.Lerp(0.4f, 0f, Mathf.InverseLerp(0.4f, 1.0f, Data.GrowthPercentage));
+
+            // Instead of one big swelling, we show pieces one by one
+            int segmentsToShow = Mathf.CeilToInt(Mathf.InverseLerp(0.3f, 1.0f, Data.GrowthPercentage) * _childRenderers.Length);
             
-            if (_propBlock == null) _propBlock = new MaterialPropertyBlock();
-            
-            LiverRenderer.GetPropertyBlock(_propBlock);
-            _propBlock.SetFloat("_GrowthOffset", offset);
-            
-            // Rejection tinting
-            _propBlock.SetFloat("_IcterusIntensity", Data.ImmuneAttack ? 1.0f : 0f);
-            
-            LiverRenderer.SetPropertyBlock(_propBlock);
+            for (int i = 0; i < _childRenderers.Length; i++)
+            {
+                float segmentTarget = (i < segmentsToShow) ? 1.0f : 0.01f; // 0.01 instead of 0 to avoid physics/bounds issues
+                
+                // Smoothly scale each segment into existence
+                _childRenderers[i].transform.localScale = Vector3.Lerp(_childRenderers[i].transform.localScale, _originalScales[i] * segmentTarget, Time.deltaTime * 2f);
+                
+                // Also apply shader properties to each segment
+                _childRenderers[i].GetPropertyBlock(_propBlock);
+                _propBlock.SetFloat("_GrowthOffset", offset);
+                _propBlock.SetFloat("_DarkeningIntensity", healthDarkening);
+                _propBlock.SetFloat("_IcterusIntensity", Data.ImmuneAttack ? 1.0f : 0f);
+                _childRenderers[i].SetPropertyBlock(_propBlock);
+            }
 
             // Scale logic for initial states
             // Instead of blendshapes, we can also use transform scale if needed, 
@@ -95,7 +154,8 @@ namespace LiverTransplantAR.Scenarios
 
             // shader property for vascularization visibility
             LiverRenderer.GetPropertyBlock(_propBlock);
-            float vascularIntensity = Mathf.Clamp01(Data.GrowthPercentage) * Data.ExerciseMultiplier;
+            // More growth = more visible healthy vascularization
+            float vascularIntensity = Mathf.InverseLerp(0.3f, 1.0f, Data.GrowthPercentage) * 0.8f;
             _propBlock.SetFloat("_VascularIntensity", vascularIntensity);
             LiverRenderer.SetPropertyBlock(_propBlock);
 
@@ -110,8 +170,8 @@ namespace LiverTransplantAR.Scenarios
         // Helper to advance weeks (Call from UI button)
         public void NextWeek()
         {
-            Data.SimulationWeek++;
-            Debug.Log($"Current Week: {Data.SimulationWeek}. Speed Multiplier: {(Data.SimulationWeek <= 4 ? "2x" : "1x")}");
+            if (Data.SimulationWeek < 4) Data.SimulationWeek++;
+            Debug.Log($"Current Week: {Data.SimulationWeek}");
         }
     }
 }

@@ -113,13 +113,7 @@ namespace LiverTransplantAR.Scenarios
             // 3. Apply to Renderer
             LiverRenderer.GetPropertyBlock(_propBlock);
             
-            // Growth Offset from Simulation Data
-            if (Data != null)
-            {
-                // Map 0.3-1.0 growth to 0.0-0.5 shader offset
-                float growthOffset = Mathf.Clamp((Data.GrowthPercentage - 0.3f) * 0.7f, 0, 0.5f);
-                _propBlock.SetFloat("_GrowthOffset", growthOffset);
-            }
+            // Growth Offset handled by Scenario Managers (LiverRegeneration)
 
             _propBlock.SetFloat("_PulseAmount", _pulseTimer);
             _propBlock.SetColor("_PulseColor", PulseColor);
