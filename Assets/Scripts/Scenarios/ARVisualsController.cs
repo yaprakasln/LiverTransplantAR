@@ -34,6 +34,7 @@ namespace LiverTransplantAR.Scenarios
         
         private Vector3 _initialScale;
         private Vector3 _initialPosition;
+        private Vector3 _initialHUDPosition;
 
         void Start()
         {
@@ -43,10 +44,10 @@ namespace LiverTransplantAR.Scenarios
                 _initialScale = LiverRenderer.transform.localScale;
                 _initialPosition = LiverRenderer.transform.localPosition;
                 
-                // Disable Animator to let code-based animation work
                 var animator = LiverRenderer.GetComponentInParent<Animator>();
                 if (animator != null) animator.enabled = false;
             }
+            if (HUDPanel != null) _initialHUDPosition = HUDPanel.localPosition;
         }
 
         void Update()
@@ -60,7 +61,8 @@ namespace LiverTransplantAR.Scenarios
         private void AnimateScanline()
         {
             if (ScanlineQuad == null) return;
-            float y = Mathf.PingPong(Time.time * ScanSpeed, ScanRange * 2) - ScanRange;
+            // SLOWER SCAN: 0.5f speed
+            float y = Mathf.PingPong(Time.time * 0.5f, ScanRange * 2) - ScanRange;
             ScanlineQuad.localPosition = new Vector3(0, y, 0);
         }
 
@@ -68,15 +70,13 @@ namespace LiverTransplantAR.Scenarios
         {
             if (LiverRenderer == null) return;
             
-            // 1. Sophisticated Breathing (respecting initial scale)
-            float breath = 1.0f + Mathf.Sin(Time.time * BreathSpeed) * BreathAmount;
+            // SLOWER BREATH
+            float breath = 1.0f + Mathf.Sin(Time.time * 0.6f) * (BreathAmount * 0.5f);
             LiverRenderer.transform.localScale = _initialScale * breath;
 
-            // 2. Floating Motion (Up/Down süzülme)
-            float floatY = Mathf.Sin(Time.time * 0.5f) * 0.05f; 
+            float floatY = Mathf.Sin(Time.time * 0.3f) * 0.03f; 
             LiverRenderer.transform.localPosition = _initialPosition + new Vector3(0, floatY, 0);
 
-            // 3. Rotation: Use RotationTarget if available, otherwise fallback to renderer
             if (EnableAutoRotation)
             {
                 Transform target = RotationTarget != null ? RotationTarget : LiverRenderer.transform;
@@ -87,8 +87,9 @@ namespace LiverTransplantAR.Scenarios
         private void AnimateHUD()
         {
             if (HUDPanel == null) return;
-            float offset = Mathf.Sin(Time.time * FloatSpeed) * FloatAmount;
-            HUDPanel.localPosition += new Vector3(0, offset * Time.deltaTime * 50, 0); // Subtle float
+            // VISIBLE FLOATING: Now it moves 8cm up/down with a smooth medical rhythm
+            float offset = Mathf.Sin(Time.time * 1.0f) * 0.08f; 
+            HUDPanel.localPosition = _initialHUDPosition + new Vector3(0, offset, 0);
         }
 
         private void UpdateShaderProperties()

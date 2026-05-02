@@ -1,109 +1,87 @@
 using UnityEngine;
 using UnityEngine.UI;
-using LiverTransplantAR.Data;
+using TMPro;
 
 namespace LiverTransplantAR.Scenarios
 {
     public class LifestyleManager : MonoBehaviour
     {
-        public SimulationState Data;
-        public Renderer LiverRenderer;
-        
-        [Header("UI & AR Visuals")]
+        public LiverTransplantAR.Data.SimulationState Data;
         public LiverTransplantAR.UI.FlowManager FlowUI;
-        public ARVisualsController Visuals;
-        
-        [Header("Biometric Gauges")]
+
+        [Header("HUD References")]
         public Image ASTGauge;
         public Image ALTGauge;
         public Image BiliGauge;
 
-        private MaterialPropertyBlock _propBlock;
+        [Header("Visual References")]
+        public Renderer LiverRenderer;
+        public Color HealthyColor = new Color(0.6f, 0.1f, 0.1f);
+        public Color FattyColor = new Color(0.85f, 0.75f, 0.35f);
+
+        private float targetAST = 0.4f;
+        private float targetALT = 0.3f;
+        private float targetBili = 0.2f;
+        private Color targetColor;
 
         void Start()
         {
-            _propBlock = new MaterialPropertyBlock();
-            if (Data == null) Debug.LogError("SimulationData not assigned to LifestyleManager!");
-            if (FlowUI == null) FlowUI = GameObject.FindObjectOfType<LiverTransplantAR.UI.FlowManager>();
+            targetColor = HealthyColor;
+            if (LiverRenderer == null) {
+                var visuals = GameObject.FindObjectOfType<ARVisualsController>();
+                if (visuals != null) LiverRenderer = visuals.GetComponentInChildren<Renderer>();
+            }
         }
 
         void Update()
         {
-            ProcessLifestyleEffects();
-            SimulateBiometrics();
-        }
+            // Smoothly update the gauges (HUD)
+            if (ASTGauge != null) ASTGauge.fillAmount = Mathf.Lerp(ASTGauge.fillAmount, targetAST, Time.deltaTime * 2f);
+            if (ALTGauge != null) ALTGauge.fillAmount = Mathf.Lerp(ALTGauge.fillAmount, targetALT, Time.deltaTime * 2f);
+            if (BiliGauge != null) BiliGauge.fillAmount = Mathf.Lerp(BiliGauge.fillAmount, targetBili, Time.deltaTime * 2f);
 
-        private void ProcessLifestyleEffects()
-        {
-            float currentRate = Data.BaseRegenerationRate * Data.NutritionMultiplier * Data.ExerciseMultiplier;
-            
-            if (Data.IsAdherent && Data.GrowthPercentage < 1.0f)
+            // Smoothly change Liver Color
+            if (LiverRenderer != null)
             {
-                Data.GrowthPercentage += currentRate * Time.deltaTime;
+                Color currentColor = LiverRenderer.material.color;
+                LiverRenderer.material.color = Color.Lerp(currentColor, targetColor, Time.deltaTime * 1.5f);
             }
-            
-            Data.GrowthPercentage = Mathf.Clamp(Data.GrowthPercentage, 0.4f, 1.0f);
         }
-
-        private void SimulateBiometrics()
-        {
-            // Perfect logic: Lifestyle impacts biochemical markers over time
-            float targetAST = Data.IsFattyDiet ? 85f : 22f;
-            float targetALT = Data.IsFattyDiet ? 90f : 28f;
-            float targetBili = Data.IsFattyDiet ? 1.8f : 0.7f;
-
-            // Exercise improves bilirubin clearance
-            if (Data.ExerciseMultiplier > 1.0f) targetBili -= 0.2f;
-
-            Data.AST = Mathf.Lerp(Data.AST, targetAST, Time.deltaTime * 0.5f);
-            Data.ALT = Mathf.Lerp(Data.ALT, targetALT, Time.deltaTime * 0.5f);
-            Data.Bilirubin = Mathf.Lerp(Data.Bilirubin, targetBili, Time.deltaTime * 0.5f);
-
-            // Update UI Gauges (Normalized 0-1)
-            if (ASTGauge != null) ASTGauge.fillAmount = Mathf.Clamp01(Data.AST / 100f);
-            if (ALTGauge != null) ALTGauge.fillAmount = Mathf.Clamp01(Data.ALT / 100f);
-            if (BiliGauge != null) BiliGauge.fillAmount = Mathf.Clamp01(Data.Bilirubin / 2.0f);
-        }
-
-        // Logic moved to ARVisualsController to prevent property block conflicts
-
 
         public void SetHighProteinDiet()
         {
-            Data.NutritionMultiplier = 1.5f;
-            Data.IsFattyDiet = false;
-            string msg = "Beslenme: Yüksek proteinli diyet seçildi. Hücre yenilenmesi hızlanıyor, AST/ALT seviyeleri normale dönüyor.";
-            Debug.Log("<color=green>SUCCESS:</color> High Protein Diet method called.");
-            if (FlowUI != null) FlowUI.UpdateLifestyleFeedback(msg);
-            if (Visuals != null) Visuals.TriggerPulse(new Color(0.2f, 1.0f, 0.5f, 1.0f)); // Healing Green
-            Debug.Log(msg);
+            Debug.Log("Lifestyle: High Protein Diet selected.");
+            targetAST = 0.25f; 
+            targetALT = 0.2f;
+            targetBili = 0.15f;
+            targetColor = HealthyColor;
         }
 
         public void SetHighFatDiet()
         {
-            Data.NutritionMultiplier = 0.7f;
-            Data.IsFattyDiet = true;
-            string msg = "UYARI: Yağlı beslenme karaciğerde yağ birikimine (steatoz) ve enzim değerlerinde (AST/ALT) artışa neden olur!";
-            Debug.Log("<color=red>WARNING:</color> High Fat Diet method called.");
-            if (FlowUI != null) FlowUI.UpdateLifestyleFeedback(msg);
-            if (Visuals != null) Visuals.TriggerPulse(new Color(1.0f, 0.5f, 0.0f, 1.0f)); // Warning Orange
-            Debug.Log(msg);
+            Debug.Log("Lifestyle: High Fat Diet selected.");
+            targetAST = 0.85f; 
+            targetALT = 0.9f;
+            targetBili = 0.75f;
+            targetColor = FattyColor;
         }
 
-        public void ToggleExercise(bool isActive)
+        public void ToggleExerciseTrue()
         {
-            Data.ExerciseMultiplier = isActive ? 1.3f : 1.0f;
-            string msg = isActive ? 
-                "Egzersiz: Kan akışı arttı. Toksin atılımı hızlanıyor ve Bilirubin seviyesi düşüyor." : 
-                "Hareketsiz Yaşam: Kan dolaşımı yavaşladı, iyileşme hızı baz seviyeye düştü.";
-            Debug.Log($"<color=cyan>INFO:</color> Toggle Exercise called. Active: {isActive}");
-            if (FlowUI != null) FlowUI.UpdateLifestyleFeedback(msg);
-            if (Visuals != null && isActive) Visuals.TriggerPulse(new Color(0.0f, 0.8f, 1.0f, 1.0f)); // Vascular Blue
-            Debug.Log(msg);
+            Debug.Log("Lifestyle: Exercise ON.");
+            targetAST = Mathf.Max(0.1f, targetAST - 0.2f);
+            targetALT = Mathf.Max(0.1f, targetALT - 0.2f);
+            targetBili = Mathf.Max(0.1f, targetBili - 0.15f);
         }
 
-        // Wrapper for UI buttons
-        public void ToggleExerciseTrue() => ToggleExercise(true);
-        public void ToggleExerciseFalse() => ToggleExercise(false);
+        public void ToggleExerciseFalse()
+        {
+            Debug.Log("Lifestyle: Exercise OFF.");
+            if (targetColor == FattyColor)
+            {
+                targetAST = Mathf.Min(1.0f, targetAST + 0.1f);
+                targetALT = Mathf.Min(1.0f, targetALT + 0.1f);
+            }
+        }
     }
 }
