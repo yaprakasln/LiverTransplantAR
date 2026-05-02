@@ -10,6 +10,8 @@ Shader "Custom/LiverOrganicShader"
         _Metallic("Metallic", Range(0,1)) = 0.0
         _VascularIntensity("Vascularization", Range(0,1)) = 0.5
         _SteatosisAmount("Steatosis (Fatty)", Range(0,1)) = 0
+        _GrowthOffset("Growth Displacement", float) = 0
+        _NecrosisAmount("Necrosis (Rot)", Range(0,1)) = 0
     }
     SubShader
     {
@@ -50,11 +52,19 @@ Shader "Custom/LiverOrganicShader"
             float _Metallic;
             float _VascularIntensity;
             float _SteatosisAmount;
+            float _GrowthOffset;
+            float _NecrosisAmount;
+
+            float pseudoNoise(float2 uv)
+            {
+                return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+            }
 
             Varyings vert(Attributes input)
             {
                 Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                float3 displacedPos = input.positionOS.xyz;
+                output.positionCS = TransformObjectToHClip(displacedPos);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.uv = input.uv;
@@ -63,38 +73,41 @@ Shader "Custom/LiverOrganicShader"
 
             half4 frag(Varyings input) : SV_Target
             {
-                // Organic Color Blending
                 float3 baseColor = _BaseColor.rgb;
                 
-                // Yellowing (Icterus)
+                // 1. Organic Transitions
                 baseColor = lerp(baseColor, _IcterusColor.rgb, _IcterusIntensity);
-                
-                // Darkening (Tissue Health)
                 baseColor = lerp(baseColor, baseColor * 0.2, _DarkeningIntensity);
                 
-                // Steatosis (Yellowish white spots)
-                float3 fattyColor = float3(0.9, 0.85, 0.6);
-                baseColor = lerp(baseColor, fattyColor, _SteatosisAmount * 0.5);
+                // 2. Growing Purple Rot (Radial + Noise)
+                float2 center = float2(0.5, 0.5);
+                float dist = distance(input.uv, center);
+                
+                float noise = pseudoNoise(input.uv * 10.0) * 0.15;
+                // The rot expands based on _NecrosisAmount
+                // When amount is 0, nothing. When 1.0, covers full 0.0-1.0 UV range.
+                float rotEdge = _NecrosisAmount * 1.2; 
+                float rotMask = smoothstep(rotEdge, rotEdge - 0.2, dist + noise);
+                
+                float3 purpleRot = float3(0.15, 0.02, 0.15); // Dark Purple/Livid
+                baseColor = lerp(baseColor, purpleRot, rotMask);
 
-                // Simple Lighting
+                // 3. Lighting & Final Mix
                 float3 normal = normalize(input.normalWS);
                 float3 viewDir = normalize(GetCameraPositionWS() - input.positionWS);
                 Light light = GetMainLight();
                 float3 lightDir = normalize(light.direction);
-
                 float diffuse = saturate(dot(normal, lightDir));
                 
-                // Subsurface Scattering Fake (Translucency)
-                float sss = saturate(dot(viewDir, -lightDir)) * 0.3;
-                
-                // Specular
+                float currentGloss = _Glossiness * (1.0 - rotMask * 0.9);
                 float3 halfwayDir = normalize(lightDir + viewDir);
-                float specular = pow(saturate(dot(normal, halfwayDir)), _Glossiness * 128.0) * _Glossiness;
+                float specular = pow(saturate(dot(normal, halfwayDir)), currentGloss * 128.0 + 1.0) * currentGloss;
 
-                float3 finalColor = baseColor * (diffuse + sss + 0.2) + (specular * light.color);
+                float3 finalColor = baseColor * (diffuse + 0.3) + (specular * light.color);
                 
                 return half4(finalColor, 1.0);
             }
+
             ENDHLSL
         }
     }
