@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace LiverTransplantAR.Data
 {
-    public enum AppFlowState { Intro, MainMenu, Scenario_Recovery, Scenario_Medication }
+    public enum AppFlowState { Intro, MainMenu, Scenario_Recovery, Scenario_Medication, Scenario_Rejection, Scenario_Lifestyle }
 
     [CreateAssetMenu(fileName = "NewSimulationState", menuName = "LiverAR/SimulationState")]
     public class SimulationState : ScriptableObject
