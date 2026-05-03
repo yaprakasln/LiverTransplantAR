@@ -73,6 +73,16 @@ namespace LiverTransplantAR.UI
             if (DescriptionText != null) DescriptionText.text = "Beslenme ve egzersiz alışkanlıklarının nakil sonrası karaciğer sağlığı üzerindeki etkilerini inceleyin.";
         }
 
+        public void StartRejectionScenario()
+        {
+            if (Data == null) return;
+            Data.CurrentMode = AppFlowState.Scenario_Rejection;
+            Data.ResetToDefault();
+            UpdateUI();
+            if (HeaderText != null) HeaderText.text = "Senaryo 3: Uyumsuzluk ve Red";
+            if (DescriptionText != null) DescriptionText.text = "Vücudun nakil edilen karaciğeri reddetme süreci. Sararma, damar tıkanıklıkları ve organ yetmezliğini gözlemleyin.";
+        }
+
         private void UpdateUI()
         {
             // GLASSMORPHISM: Ensure panels are semi-transparent and don't block the liver
@@ -82,7 +92,7 @@ namespace LiverTransplantAR.UI
 
             if (IntroPanel != null) IntroPanel.SetActive(Data.CurrentMode == AppFlowState.Intro);
             if (MenuPanel != null) MenuPanel.SetActive(Data.CurrentMode == AppFlowState.MainMenu);
-            if (ScenarioPanel != null) ScenarioPanel.SetActive(Data.CurrentMode == AppFlowState.Scenario_Recovery || Data.CurrentMode == AppFlowState.Scenario_Medication || Data.CurrentMode == AppFlowState.Scenario_Lifestyle);
+            if (ScenarioPanel != null) ScenarioPanel.SetActive(Data.CurrentMode == AppFlowState.Scenario_Recovery || Data.CurrentMode == AppFlowState.Scenario_Medication || Data.CurrentMode == AppFlowState.Scenario_Rejection || Data.CurrentMode == AppFlowState.Scenario_Lifestyle);
         }
 
         private void ApplyGlassEffect(GameObject panel)
