@@ -796,7 +796,7 @@ Camera:
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 60
-  orthographic: 1
+  orthographic: 0
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -821,8 +821,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.000000046813376, y: 4.1036466e-22, z: 0, w: -1}
-  m_LocalPosition: {x: -0.120267056, y: 0.5159192, z: -3.7036777}
+  m_LocalRotation: {x: 0.1252074, y: 0.08471977, z: -0.010730347, w: 0.98844856}
+  m_LocalPosition: {x: -2.9247923, y: 2.9960167, z: -11.995354}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1456,7 +1456,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2.246521, y: -56.083405}
+  m_AnchoredPosition: {x: -2.246582, y: -56.083374}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &575025356
@@ -2599,8 +2599,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LiverTransplantAR.Scenarios.LifestyleManager
   Data: {fileID: 11400000, guid: 132f4f9c0200648fc8ae13a6f63250eb, type: 2}
-  LiverRenderer: {fileID: 0}
   FlowUI: {fileID: 0}
+  ASTGauge: {fileID: 0}
+  ALTGauge: {fileID: 0}
+  BiliGauge: {fileID: 0}
+  LiverRenderer: {fileID: 0}
+  HealthyColor: {r: 0.6, g: 0.1, b: 0.1, a: 1}
+  FattyColor: {r: 0.85, g: 0.75, b: 0.35, a: 1}
 --- !u!4 &1104710662
 Transform:
   m_ObjectHideFlags: 0

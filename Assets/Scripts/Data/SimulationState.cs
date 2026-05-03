@@ -33,6 +33,16 @@ namespace LiverTransplantAR.Data
         public float ExerciseMultiplier = 1.0f;  // Vascular flow focus
         public bool IsFattyDiet = false;         // Steatosis trigger
 
+        [Header("Rejection (Scenario 3)")]
+        public int RejectionStage = 0;              // 0=Normal, 1=Early, 2=Acute, 3=Chronic
+        [Range(0f, 1f)]
+        public float RejectionProgress = 0f;        // Overall rejection progress 0-1
+        [Range(0f, 1f)]
+        public float VascularOcclusion = 0f;        // Vascular blockage intensity 0-1
+        [Range(0f, 1f)]
+        public float FibrosisFactor = 0f;           // Fibrosis degree 0-1
+        public bool IsRejecting = false;            // Active rejection process
+
         public void ResetToDefault()
         {
             GrowthPercentage = HasTransplant ? 0.4f : 0.3f; // Transplant starts with more
@@ -47,6 +57,13 @@ namespace LiverTransplantAR.Data
             NutritionMultiplier = 1.0f;
             ExerciseMultiplier = 1.0f;
             IsFattyDiet = false;
+
+            // Rejection defaults
+            RejectionStage = 0;
+            RejectionProgress = 0f;
+            VascularOcclusion = 0f;
+            FibrosisFactor = 0f;
+            IsRejecting = false;
         }
     }
 }
