@@ -11,6 +11,7 @@ namespace LiverTransplantAR.Scenarios
         public TMPro.TMP_Text ClinicalBox;
         public TMPro.TMP_Text StatusBox;
         public TMPro.TMP_Text AdviceBox;
+        public TMPro.TMP_Text VitalBox;
 
         private MaterialPropertyBlock _propBlock;
         private Renderer[] _renderers;
@@ -64,26 +65,35 @@ namespace LiverTransplantAR.Scenarios
         {
             if (Data.IsAdherent)
             {
-                if (MainStatusText != null) MainStatusText.text = "<b>DURUM: <color=green>OPTIMAL TOLERANS</color></b>";
-                if (ClinicalBox != null) ClinicalBox.text = $"<b>Klinik Analiz</b>\nAST: {(int)Data.AST} (Kararlı)\nALT: {(int)Data.ALT} (Kararlı)\nBilirubin: {Data.Bilirubin:F1} (Normal)";
-                if (StatusBox != null) StatusBox.text = $"<b>Doku Bütünlüğü</b>\nHücresel yapı korunuyor.\nİmmün Yanıt: Baskılanmış (İdeal)";
-                if (AdviceBox != null) AdviceBox.text = "<b>Tıbbi Not:</b> İlaçlar (Takrolimus/Siklosporin) kandaki hedef seviyesinde. Bağışıklık sistemi organı kendi dokusu gibi kabul ediyor.";
+                if (MainStatusText != null) MainStatusText.text = "<b>DURUM: <color=green>OPTIMAL İMMÜNOTOLERANS</color></b>";
+                if (ClinicalBox != null) ClinicalBox.text = $"<b>Klinik Analiz</b>\nAST: {(int)Data.AST} (Normal)\nALT: {(int)Data.ALT} (Normal)\nBilirubin: {Data.Bilirubin:F1} (Stabil)";
+                if (StatusBox != null) StatusBox.text = $"<b>Hücresel Durum</b>\nHepatosit yapısı korunuyor.\nLenfosit Aktivitesi: Baskılanmış";
+                if (AdviceBox != null) AdviceBox.text = "<b>Tıbbi Rapor:</b> İmmünosupresyon (Takrolimus) seviyesi ideal. Graft reddi riski minimum.";
             }
             else
             {
-                if (MainStatusText != null) MainStatusText.text = "<b>DURUM: <color=red>AKUT HÜCRESEL RED</color></b>";
-                if (ClinicalBox != null) ClinicalBox.text = $"<b>Klinik Analiz</b>\nAST: <color=red>{(int)Data.AST} (Yükseliyor)</color>\nALT: <color=red>{(int)Data.ALT} (Yükseliyor)</color>\nBilirubin: <color=red>{Data.Bilirubin:F1}</color>";
+                if (MainStatusText != null) MainStatusText.text = "<b>DURUM: <color=red>AKUT HÜCRESEL REJEKSİYON</color></b>";
+                if (ClinicalBox != null) ClinicalBox.text = $"<b>Klinik Analiz</b>\nAST: <color=red>{(int)Data.AST} (Yüksek)</color>\nALT: <color=red>{(int)Data.ALT} (Yüksek)</color>\nBilirubin: <color=red>{Data.Bilirubin:F1}</color>";
                 
-                string status = "<b>Doku Bütünlüğü</b>\n<color=red>Lenfosit İnfiltrasyonu</color>";
-                string advice = "<b>DİKKAT:</b> İlaç dozu atlandığı için T-Hücreleri organa saldırmaya başladı.";
+                string status = "<b>Hücresel Durum</b>\n<color=red>T-Hücresi İnfiltrasyonu</color>";
+                string advice = "<b>KRİTİK UYARI:</b> İlaç uyumsuzluğu nedeniyle bağışıklık sistemi graft dokusuna saldırıyor.";
                 
                 if (Data.HealthPoints < 50f) {
-                    status = "<b>Doku Bütünlüğü</b>\n<color=red>DOKU NEKROZU (ÇÜRÜME)</color>";
-                    advice = "<color=red>KRİTİK HATA:</color> Hücre ölümleri başladı! Karaciğer dokusu işlevini yitiriyor ve çürüyor!";
+                    status = "<b>Hücresel Durum</b>\n<color=red>İSKEMİK NEKROZ</color>";
+                    advice = "<color=red>GERİ DÖNÜLEMEZ HASAR:</color> Organ dokusu ölüyor. Acil re-transplantasyon gerekebilir!";
                 }
                 
                 if (StatusBox != null) StatusBox.text = status;
                 if (AdviceBox != null) AdviceBox.text = advice;
+                
+                if (VitalBox != null) {
+                    string v = "<b>DİNAMİK VİTAL</b>\n";
+                    v += $"Albumin: {Mathf.Lerp(2.5f, 4.0f, Data.HealthPoints/100f):F1}\n";
+                    v += $"INR: {Mathf.Lerp(2.2f, 1.1f, Data.HealthPoints/100f):F1}\n";
+                    v += $"Glikoz: {(int)Mathf.Lerp(60, 100, Data.HealthPoints/100f)} mg/dL";
+                    VitalBox.text = v;
+                    VitalBox.color = Data.HealthPoints < 50 ? Color.red : Color.white;
+                }
             }
         }
 

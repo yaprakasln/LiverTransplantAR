@@ -36,6 +36,7 @@ namespace LiverTransplantAR.EditorTools
                 reg.CellularBox = hud.c1;
                 reg.VolumeBox = hud.c2;
                 reg.FunctionalBox = hud.c3;
+                reg.VitalBox = hud.vitals;
             });
         }
 
@@ -46,11 +47,12 @@ namespace LiverTransplantAR.EditorTools
                 var med = liver.transform.parent.gameObject.AddComponent<MedicationManager>();
                 med.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
                 
-                var hud = SetupScenarioHUD(canvas, "MEDICATION ADHERENCE", "İlacı Al", "SetAdherenceTrue", typeof(MedicationButtonHelper), "İlacı Atla", "SetAdherenceFalse");
+                var hud = SetupScenarioHUD(canvas, "MEDICATION IMPORTANCE", "İlacı Al", "SetAdherenceTrue", typeof(MedicationButtonHelper), "İlacı Atla", "SetAdherenceFalse");
                 med.MainStatusText = hud.main;
                 med.ClinicalBox = hud.c1;
                 med.StatusBox = hud.c2;
                 med.AdviceBox = hud.c3;
+                med.VitalBox = hud.vitals;
             });
         }
 
@@ -88,7 +90,8 @@ namespace LiverTransplantAR.EditorTools
                 if (rs.Length > 0) {
                     Bounds b = rs[0].bounds; foreach (var r in rs) b.Encapsulate(r.bounds);
                     liverInstance.transform.localPosition = -b.center;
-                    pivot.transform.localScale = Vector3.one * (2.5f / Mathf.Max(b.size.x, b.size.y, b.size.z));
+                    // INCREASED SCALE (from 2.5 to 3.8) for better visibility
+                    pivot.transform.localScale = Vector3.one * (3.8f / Mathf.Max(b.size.x, b.size.y, b.size.z));
                     
                     Material mat = new Material(Shader.Find("Custom/LiverOrganicShader"));
                     if (mat.shader == null) mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
@@ -130,29 +133,63 @@ namespace LiverTransplantAR.EditorTools
 
         private static void SetupMenuUI(GameObject canvas)
         {
-            // Simple Title
+            // --- Premium Header ---
             GameObject titleObj = new GameObject("Title"); titleObj.transform.SetParent(canvas.transform, false);
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
-            titleTxt.text = "<b>LIVER TRANSPLANT</b>\n<color=#005577>AR EXPERIENCE</color>";
-            titleTxt.alignment = TextAlignmentOptions.Center; titleTxt.fontSize = 80;
+            titleTxt.text = "<size=120%><b>LIVER TRANSPLANT</b></size>\n<color=#00ccff><size=80%>DIGITAL AR EXPERIENCE</size></color>";
+            titleTxt.alignment = TextAlignmentOptions.Center;
+            titleTxt.lineSpacing = -20;
             var tRect = titleObj.GetComponent<RectTransform>();
-            tRect.anchorMin = new Vector2(0, 0.8f); tRect.anchorMax = new Vector2(1, 0.95f);
+            tRect.anchorMin = new Vector2(0, 0.75f); tRect.anchorMax = new Vector2(1, 0.95f);
             tRect.anchoredPosition = Vector2.zero; tRect.sizeDelta = Vector2.zero;
 
-            string[] names = { "RECOVERY", "MEDICATION", "REJECTION", "LIFESTYLE" };
+            // --- Scenario Grid/List ---
+            string[] names = { "🌱 ONARIM SÜRECİ", "💊 İLAÇ ÖNEMİ", "⚠️ ORGAN REDDİ", "🏃 SAĞLIKLI YAŞAM" };
+            Color[] colors = { 
+                new Color(0.1f, 0.4f, 0.2f, 0.85f), // Greenish
+                new Color(0.1f, 0.3f, 0.5f, 0.85f), // Bluish
+                new Color(0.5f, 0.1f, 0.1f, 0.85f), // Reddish
+                new Color(0.4f, 0.3f, 0.1f, 0.85f)  // Goldish
+            };
+
             for (int i = 0; i < 4; i++) {
-                GameObject btnObj = CreateResponsivePanel(canvas.transform, "Btn_" + i, new Vector2(0.1f, 0.4f - i*0.1f), new Vector2(0.9f, 0.48f - i*0.1f), new Color(0, 0.6f, 0.7f));
-                var txt = new GameObject("Txt").AddComponent<TextMeshProUGUI>();
-                txt.transform.SetParent(btnObj.transform, false);
-                txt.text = names[i]; txt.alignment = TextAlignmentOptions.Center;
+                // Button Panel with "Glass" look
+                GameObject btnObj = CreateResponsivePanel(canvas.transform, "Btn_" + i, new Vector2(0.15f, 0.55f - i*0.13f), new Vector2(0.85f, 0.65f - i*0.13f), colors[i]);
+                
+                // Add a subtle border/outline effect
+                var outline = btnObj.AddComponent<Outline>();
+                outline.effectColor = new Color(1, 1, 1, 0.3f);
+                outline.effectDistance = new Vector2(2, -2);
+
+                var txt = CreateTextInPanel(btnObj, "Txt", 42);
+                txt.text = "<b>" + names[i] + "</b>"; 
+                txt.color = Color.white;
+                txt.alignment = TextAlignmentOptions.Center;
+                txt.enableWordWrapping = false;
+
                 var b = btnObj.AddComponent<Button>();
                 var loader = btnObj.AddComponent<MenuSceneLoader>();
                 loader.targetScene = i == 3 ? "Scenario4_Final" : "Scenario" + (i+1);
                 UnityEventTools.AddPersistentListener(b.onClick, loader.LoadTarget);
+
+                // Add Hover/Click visual feedback
+                var colorsBlock = b.colors;
+                colorsBlock.highlightedColor = colors[i] * 1.2f;
+                colorsBlock.pressedColor = Color.white;
+                b.colors = colorsBlock;
             }
+
+            // Footer
+            GameObject footerObj = new GameObject("Footer"); footerObj.transform.SetParent(canvas.transform, false);
+            var footerTxt = footerObj.AddComponent<TextMeshProUGUI>();
+            footerTxt.text = "<alpha=#66>Eğitim Amaçlı AR Simülasyonu v2.0";
+            footerTxt.fontSize = 24; footerTxt.alignment = TextAlignmentOptions.Center;
+            var fRect = footerObj.GetComponent<RectTransform>();
+            fRect.anchorMin = new Vector2(0, 0.02f); fRect.anchorMax = new Vector2(1, 0.08f);
+            fRect.sizeDelta = Vector2.zero; fRect.anchoredPosition = Vector2.zero;
         }
 
-        public struct HUDResult { public TMP_Text main; public TMP_Text c1; public TMP_Text c2; public TMP_Text c3; }
+        public struct HUDResult { public TMP_Text main; public TMP_Text c1; public TMP_Text c2; public TMP_Text c3; public TMP_Text vitals; }
 
         private static HUDResult SetupScenarioHUD(GameObject canvas, string title, string b1Name, string b1Method, System.Type helperType, string b2Name = "", string b2Method = "")
         {
@@ -163,24 +200,43 @@ namespace LiverTransplantAR.EditorTools
             var titleTxt = titleObj.AddComponent<TextMeshProUGUI>();
             titleTxt.text = "<b>" + title + "</b>"; titleTxt.fontSize = 50; titleTxt.alignment = TextAlignmentOptions.Center;
             var tRect = titleObj.GetComponent<RectTransform>();
-            tRect.anchorMin = new Vector2(0.22f, 0.9f); tRect.anchorMax = new Vector2(0.98f, 0.98f);
+            // True center (0 to 1) but ensuring text doesn't overlap the menu button at the far left
+            tRect.anchorMin = new Vector2(0.2f, 0.9f); tRect.anchorMax = new Vector2(0.8f, 0.98f);
             tRect.sizeDelta = Vector2.zero; tRect.anchoredPosition = Vector2.zero;
 
-            // Main Narrative Panel (Top)
-            GameObject narrPanel = CreateResponsivePanel(canvas.transform, "MainNarrative", new Vector2(0.15f, 0.78f), new Vector2(0.85f, 0.88f), new Color(0, 0.2f, 0.4f, 0.8f));
-            res.main = CreateTextInPanel(narrPanel, "MainText", 38);
+            // --- Holographic Panels Setup ---
+            Color glassBlue = new Color(0, 0.15f, 0.3f, 0.7f);
+            Color neonCyan = new Color(0, 0.8f, 1f, 0.6f);
 
-            // Callout 1 (Left - Cellular)
-            GameObject c1Panel = CreateResponsivePanel(canvas.transform, "Box_Cellular", new Vector2(0.05f, 0.5f), new Vector2(0.3f, 0.65f), new Color(0, 0, 0, 0.7f));
-            res.c1 = CreateTextInPanel(c1Panel, "Text", 28);
+            // Main Narrative Panel
+            GameObject narrPanel = CreateResponsivePanel(canvas.transform, "MainNarrative", new Vector2(0.1f, 0.76f), new Vector2(0.9f, 0.88f), glassBlue);
+            AddHUDDecoration(narrPanel, neonCyan);
+            res.main = CreateTextInPanel(narrPanel, "MainText", 36);
 
-            // Callout 2 (Right - Volume)
-            GameObject c2Panel = CreateResponsivePanel(canvas.transform, "Box_Volume", new Vector2(0.7f, 0.5f), new Vector2(0.95f, 0.65f), new Color(0, 0, 0, 0.7f));
-            res.c2 = CreateTextInPanel(c2Panel, "Text", 28);
+            // Callout 1 (Left)
+            GameObject c1Panel = CreateResponsivePanel(canvas.transform, "Box_Cellular", new Vector2(0.02f, 0.45f), new Vector2(0.32f, 0.65f), glassBlue);
+            AddHUDDecoration(c1Panel, neonCyan);
+            AddSectionTitle(c1Panel, "HÜCRESEL ANALİZ");
+            res.c1 = CreateTextInPanel(c1Panel, "Text", 26);
 
-            // Callout 3 (Bottom - Functional)
-            GameObject c3Panel = CreateResponsivePanel(canvas.transform, "Box_Functional", new Vector2(0.2f, 0.2f), new Vector2(0.8f, 0.32f), new Color(0, 0, 0, 0.7f));
-            res.c3 = CreateTextInPanel(c3Panel, "Text", 30);
+            // Callout 2 (Right)
+            GameObject c2Panel = CreateResponsivePanel(canvas.transform, "Box_Volume", new Vector2(0.68f, 0.45f), new Vector2(0.98f, 0.65f), glassBlue);
+            AddHUDDecoration(c2Panel, neonCyan);
+            AddSectionTitle(c2Panel, "HACİMSEL TAKİP");
+            res.c2 = CreateTextInPanel(c2Panel, "Text", 26);
+
+            // Callout 3 (Bottom)
+            GameObject c3Panel = CreateResponsivePanel(canvas.transform, "Box_Functional", new Vector2(0.1f, 0.18f), new Vector2(0.9f, 0.32f), glassBlue);
+            AddHUDDecoration(c3Panel, neonCyan);
+            AddSectionTitle(c3Panel, "FONKSİYONEL ANALİZ & TIBBİ NOTLAR");
+            res.c3 = CreateTextInPanel(c3Panel, "Text", 28);
+
+            // Vital Signs (Top Right)
+            GameObject vitalsPanel = CreateResponsivePanel(canvas.transform, "Box_Vitals", new Vector2(0.72f, 0.68f), new Vector2(0.98f, 0.85f), new Color(0, 0.05f, 0.1f, 0.85f));
+            AddHUDDecoration(vitalsPanel, new Color(1, 0.7f, 0, 0.6f));
+            AddSectionTitle(vitalsPanel, "VİTAL & LABORATUVAR");
+            res.vitals = CreateTextInPanel(vitalsPanel, "Text", 24);
+            res.vitals.alignment = TextAlignmentOptions.TopLeft;
 
             // Interaction Buttons
             bool hasTwoButtons = !string.IsNullOrEmpty(b2Name);
@@ -219,6 +275,67 @@ namespace LiverTransplantAR.EditorTools
             return res;
         }
 
+        private static void AddHUDDecoration(GameObject panel, Color glowColor)
+        {
+            // 1. Glow Border
+            var outline = panel.AddComponent<Outline>();
+            outline.effectColor = glowColor;
+            outline.effectDistance = new Vector2(2, -2);
+            
+            // 2. Corner Brackets (The "Fancy" part)
+            string[] anchors = { "TL", "TR", "BL", "BR" };
+            Vector2[] min = { new Vector2(0,0.9f), new Vector2(0.9f,0.9f), new Vector2(0,0), new Vector2(0.9f,0) };
+            Vector2[] max = { new Vector2(0.1f,1), new Vector2(1,1), new Vector2(0.1f,0.1f), new Vector2(1,0.1f) };
+
+            foreach(var a in anchors) {
+                var bracket = CreateResponsivePanel(panel.transform, "Bracket_"+a, new Vector2(0,0), new Vector2(1,1), new Color(0,0,0,0));
+                var bRect = bracket.GetComponent<RectTransform>();
+                // Adjusting brackets to corners
+                if(a=="TL") { bRect.anchorMin=new Vector2(0,0.85f); bRect.anchorMax=new Vector2(0.05f,1); }
+                if(a=="TR") { bRect.anchorMin=new Vector2(0.95f,0.85f); bRect.anchorMax=new Vector2(1,1); }
+                if(a=="BL") { bRect.anchorMin=new Vector2(0,0); bRect.anchorMax=new Vector2(0.05f,0.15f); }
+                if(a=="BR") { bRect.anchorMin=new Vector2(0.95f,0); bRect.anchorMax=new Vector2(1,0.15f); }
+                
+                var img = bracket.GetComponent<Image>();
+                img.color = glowColor;
+            }
+
+            // 3. Subtle "Scanning" text
+            GameObject scanObj = new GameObject("ScanLabel");
+            scanObj.transform.SetParent(panel.transform, false);
+            var scanTxt = scanObj.AddComponent<TextMeshProUGUI>();
+            scanTxt.text = "<alpha=#44>LIVE DATA FEED // " + panel.name.ToUpper();
+            scanTxt.fontSize = 14; scanTxt.alignment = TextAlignmentOptions.BottomRight;
+            var sRect = scanObj.GetComponent<RectTransform>();
+            sRect.anchorMin = new Vector2(0.5f, 0); sRect.anchorMax = new Vector2(0.98f, 0.15f);
+            sRect.sizeDelta = Vector2.zero; sRect.anchoredPosition = Vector2.zero;
+        }
+
+        private static void AddGlowBorder(GameObject panel, Color glowColor)
+        {
+            var outline = panel.AddComponent<Outline>();
+            outline.effectColor = glowColor;
+            outline.effectDistance = new Vector2(3, -3);
+            
+            // Add a second shadow for extra glow
+            var shadow = panel.AddComponent<Shadow>();
+            shadow.effectColor = new Color(glowColor.r, glowColor.g, glowColor.b, 0.2f);
+            shadow.effectDistance = new Vector2(-4, 4);
+        }
+
+        private static void AddSectionTitle(GameObject panel, string title)
+        {
+            GameObject titleObj = new GameObject("SectionTitle");
+            titleObj.transform.SetParent(panel.transform, false);
+            var txt = titleObj.AddComponent<TextMeshProUGUI>();
+            txt.text = "<size=70%>" + title + "</size>";
+            txt.color = new Color(0, 1, 1, 0.8f);
+            txt.alignment = TextAlignmentOptions.TopLeft;
+            var rect = txt.GetComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.05f, 0.75f); rect.anchorMax = new Vector2(0.95f, 0.95f);
+            rect.sizeDelta = Vector2.zero; rect.anchoredPosition = Vector2.zero;
+        }
+
         private static TMP_Text CreateTextInPanel(GameObject panel, string name, int fontSize)
         {
             var txtObj = new GameObject(name).AddComponent<TextMeshProUGUI>();
@@ -226,8 +343,8 @@ namespace LiverTransplantAR.EditorTools
             txtObj.fontSize = fontSize; txtObj.alignment = TextAlignmentOptions.Center;
             txtObj.text = "...";
             var rect = txtObj.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
-            rect.sizeDelta = new Vector2(-15, -15);
+            rect.anchorMin = Vector2.zero; rect.anchorMax = new Vector2(1, 0.85f); // Leave room for title
+            rect.sizeDelta = new Vector2(-20, -20);
             return txtObj;
         }
 

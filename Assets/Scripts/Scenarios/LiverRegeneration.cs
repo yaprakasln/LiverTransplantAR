@@ -17,6 +17,7 @@ namespace LiverTransplantAR.Scenarios
         public TMPro.TMP_Text CellularBox;
         public TMPro.TMP_Text VolumeBox;
         public TMPro.TMP_Text FunctionalBox;
+        public TMPro.TMP_Text VitalBox;
 
         [Header("VFX Settings")]
         public ParticleSystem VascularizationParticles;
@@ -79,30 +80,33 @@ namespace LiverTransplantAR.Scenarios
 
             if (Data.SimulationWeek == 1) {
                 targetGrowth = 0.45f;
-                mainDesc = "<b>HAFTA 1:</b> Rejenerasyon Başlangıcı";
-                cellular = "Hücreler (hepatositler) 24 saat içinde hızla bölünmeye başlar.";
-                volume = "Hacim: %45\n(Başlangıç)";
-                functional = "Protein sentezi kısıtlı, dinlenme hayati önemde.";
+                mainDesc = "<b>HAFTA 1:</b> POST-OPERATİF REJENERASYON DÖNGÜSÜ";
+                cellular = "Hücreler (hepatositler) 24 saat içinde agresif mitoz döngüsüne girer.";
+                volume = "Hacim: %45\n(Kritik Kütle Artışı)";
+                functional = "Protein sentezi ve glikojen depolama stabilize ediliyor.";
             } else if (Data.SimulationWeek == 2) {
                 targetGrowth = 0.65f;
-                mainDesc = "<b>HAFTA 2:</b> Vasküler Genişleme";
-                cellular = "Anjiyogenez (yeni damar oluşumu) en yüksek hızda.";
-                volume = "Hacim: %65\n(Hızlı Artış)";
-                functional = "Safra üretimi normale dönmeye başladı.";
+                mainDesc = "<b>HAFTA 2:</b> VASKÜLER PROLİFERASYON";
+                cellular = "Anjiyogenez (yeni damar oluşumu) doku beslenmesini maksimize ediyor.";
+                volume = "Hacim: %65\n(Lineer Büyüme)";
+                functional = "Albumin sentezi ve safra sekresyonu normale döndü.";
             } else if (Data.SimulationWeek == 3) {
                 targetGrowth = 0.85f;
-                mainDesc = "<b>HAFTA 4:</b> Fonksiyonel Olgunlaşma";
-                cellular = "Hücre bölünmesi yavaşlar, doku düzenlenmesi başlar.";
-                volume = "Hacim: %85\n(Neredeyse Tam)";
-                functional = "Kan süzme ve detoks kapasitesi %80'in üzerine çıktı.";
+                mainDesc = "<b>HAFTA 4:</b> SEGMENTAL MATÜRASYON";
+                cellular = "Hücre bölünmesi yavaşlar, doku mimarisi (segmentler) organize olur.";
+                volume = "Hacim: %85\n(Optimal Form)";
+                functional = "Kan filtrasyonu ve detoksifikasyon kapasitesi %90'a ulaştı.";
             } else {
                 targetGrowth = 1.0f;
-                mainDesc = "<b>HAFTA 8+:</b> Tam İyileşme";
-                cellular = "Hücresel yapı stabil hale geldi.";
-                volume = "Hacim: %100\n(Orijinal Boyut)";
-                functional = "Karaciğer tüm fonksiyonlarını tam kapasite yerine getiriyor.";
+                mainDesc = "<b>HAFTA 8+:</b> TAM METABOLİK STABİLİZASYON";
+                cellular = "Hücresel yapı ve vasküler ağlar tam stabilite sağladı.";
+                volume = "Hacim: %100\n(Fizyolojik Boyut)";
+                functional = "Karaciğer tüm metabolik yükleri tam kapasite ile yönetiyor.";
             }
 
+            if (VitalBox != null) {
+                VitalBox.text = $"<b>LABORATUVAR VERİSİ</b>\nAlbumin: {(3.5f + Data.SimulationWeek*0.1f):F1} g/dL\nINR: {(1.5f - Data.SimulationWeek*0.1f):F1}\nBilirubin: {Data.Bilirubin:F1}";
+            }
             if (MainDescriptionText != null) MainDescriptionText.text = mainDesc;
             if (CellularBox != null) CellularBox.text = cellular;
             if (VolumeBox != null) VolumeBox.text = volume;
