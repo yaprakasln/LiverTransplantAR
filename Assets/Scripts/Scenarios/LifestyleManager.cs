@@ -9,10 +9,9 @@ namespace LiverTransplantAR.Scenarios
         public LiverTransplantAR.Data.SimulationState Data;
         public LiverTransplantAR.UI.FlowManager FlowUI;
 
-        [Header("HUD References")]
-        public Image ASTGauge;
-        public Image ALTGauge;
-        public Image BiliGauge;
+        [Header("Text References")]
+        public TMPro.TMP_Text InfoText;
+        public TMPro.TMP_Text StatusLabel;
 
         [Header("Visual References")]
         public Renderer LiverRenderer;
@@ -31,57 +30,51 @@ namespace LiverTransplantAR.Scenarios
                 var visuals = GameObject.FindObjectOfType<ARVisualsController>();
                 if (visuals != null) LiverRenderer = visuals.GetComponentInChildren<Renderer>();
             }
+            UpdateStatus("SİSTEM HAZIR. Seçim yapın.");
         }
 
         void Update()
         {
-            // Smoothly update the gauges (HUD)
-            if (ASTGauge != null) ASTGauge.fillAmount = Mathf.Lerp(ASTGauge.fillAmount, targetAST, Time.deltaTime * 2f);
-            if (ALTGauge != null) ALTGauge.fillAmount = Mathf.Lerp(ALTGauge.fillAmount, targetALT, Time.deltaTime * 2f);
-            if (BiliGauge != null) BiliGauge.fillAmount = Mathf.Lerp(BiliGauge.fillAmount, targetBili, Time.deltaTime * 2f);
-
-            // Smoothly change Liver Color
+            // Smoothly change Liver Color (Fixing the _Color error)
             if (LiverRenderer != null)
             {
-                Color currentColor = LiverRenderer.material.color;
-                LiverRenderer.material.color = Color.Lerp(currentColor, targetColor, Time.deltaTime * 1.5f);
+                Color currentColor = Color.white;
+                if (LiverRenderer.material.HasProperty("_BaseColor")) currentColor = LiverRenderer.material.GetColor("_BaseColor");
+                else if (LiverRenderer.material.HasProperty("_Color")) currentColor = LiverRenderer.material.color;
+
+                Color nextColor = Color.Lerp(currentColor, targetColor, Time.deltaTime * 1.5f);
+                
+                if (LiverRenderer.material.HasProperty("_BaseColor")) LiverRenderer.material.SetColor("_BaseColor", nextColor);
+                else LiverRenderer.material.color = nextColor;
             }
         }
 
         public void SetHighProteinDiet()
         {
-            Debug.Log("Lifestyle: High Protein Diet selected.");
-            targetAST = 0.25f; 
-            targetALT = 0.2f;
-            targetBili = 0.15f;
             targetColor = HealthyColor;
+            UpdateStatus("<color=green>PROTEİN DİYETİ:</color> Karaciğer dokusu onarımı destekleniyor.");
         }
 
         public void SetHighFatDiet()
         {
-            Debug.Log("Lifestyle: High Fat Diet selected.");
-            targetAST = 0.85f; 
-            targetALT = 0.9f;
-            targetBili = 0.75f;
             targetColor = FattyColor;
+            UpdateStatus("<color=red>YAĞLI DİYET:</color> Karaciğerde yağlanma (Steatoz) riski artıyor!");
         }
 
         public void ToggleExerciseTrue()
         {
-            Debug.Log("Lifestyle: Exercise ON.");
-            targetAST = Mathf.Max(0.1f, targetAST - 0.2f);
-            targetALT = Mathf.Max(0.1f, targetALT - 0.2f);
-            targetBili = Mathf.Max(0.1f, targetBili - 0.15f);
+            targetColor = Color.Lerp(targetColor, Color.white, 0.2f); // Make it look "brighter/healthier"
+            UpdateStatus("<color=cyan>EGZERSİZ AKTİF:</color> Kan akışı ve metabolizma hızı arttı.");
         }
 
         public void ToggleExerciseFalse()
         {
-            Debug.Log("Lifestyle: Exercise OFF.");
-            if (targetColor == FattyColor)
-            {
-                targetAST = Mathf.Min(1.0f, targetAST + 0.1f);
-                targetALT = Mathf.Min(1.0f, targetALT + 0.1f);
-            }
+            UpdateStatus("<color=yellow>HAREKETSİZLİK:</color> Metabolik riskler izleniyor.");
+        }
+
+        private void UpdateStatus(string msg)
+        {
+            if (StatusLabel != null) StatusLabel.text = msg;
         }
     }
 }

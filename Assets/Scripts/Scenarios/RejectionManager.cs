@@ -201,7 +201,7 @@ namespace LiverTransplantAR.Scenarios
         /// UI metinlerini mevcut evreye göre günceller.
         /// Her evre detaylı Türkçe tıbbi bilgi içerir.
         /// </summary>
-        private void UpdateNarrative()
+        public void UpdateNarrative()
         {
             switch (Data.RejectionStage)
             {
