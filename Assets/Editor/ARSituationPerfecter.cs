@@ -56,6 +56,74 @@ namespace LiverTransplantAR.EditorTools
             });
         }
 
+        [MenuItem("Liver AR/3. CREATE REJECTION SCENE")]
+        public static void CreateRejectionScene()
+        {
+            SetupBaseScene("Assets/Scenes/Scenario3.unity", (canvas, liver) => {
+                var rej = liver.transform.parent.gameObject.AddComponent<RejectionManager>();
+                rej.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
+                
+                var hud = SetupScenarioHUD(canvas, "ORGAN REJECTION", "İlerlet", "AdvanceStage", typeof(RejectionButtonHelper), "Sıfırla", "ResetRejection");
+                rej.MainStatusText = hud.main;
+                rej.SymptomsBox = hud.c1;
+                rej.ClinicalBox = hud.c2;
+                rej.PrognosisBox = hud.c3;
+                rej.UpdateNarrative();
+            });
+        }
+
+        [MenuItem("Liver AR/4. CREATE LIFESTYLE SCENE (FINAL)")]
+        public static void CreateLifestyleScene()
+        {
+            SetupBaseScene("Assets/Scenes/Scenario4_Final.unity", (canvas, liver) => {
+                var life = liver.transform.parent.gameObject.AddComponent<LifestyleManager>();
+                life.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
+                
+                // 1. Setup Liver Scale for this scenario
+                liver.transform.localScale = Vector3.one * 3.2f;
+                liver.transform.localPosition = new Vector3(0, 0.05f, 0);
+
+                // 2. HEADER PANEL
+                GameObject headerPanel = CreateResponsivePanel(canvas.transform, "HeaderPanel", new Vector2(0, 0.88f), new Vector2(1, 1), new Color(0, 0.2f, 0.4f, 0.8f));
+                var headerTxt = CreateTextInPanel(headerPanel, "Title", 45);
+                headerTxt.text = "<b>BESLENME VE SAĞLIKLI YAŞAM</b>";
+                headerTxt.alignment = TextAlignmentOptions.Center;
+                headerTxt.rectTransform.anchorMin = Vector2.zero; headerTxt.rectTransform.anchorMax = Vector2.one;
+
+                // 3. INFO PANEL
+                GameObject infoPanel = CreateResponsivePanel(canvas.transform, "InfoPanel", new Vector2(0.05f, 0.65f), new Vector2(0.95f, 0.85f), new Color(0, 0, 0, 0.7f));
+                var infoTxt = CreateTextInPanel(infoPanel, "InfoText", 28);
+                infoTxt.text = "• <b>Beslenme:</b> Akdeniz diyeti önerilir. Tuz ve az pişmiş gıdalardan kaçının.\n" +
+                               "• <b>Egzersiz:</b> İlk 3 ay ağır kaldırmayın. Günlük yürüyüş metabolizmayı korur.";
+                infoTxt.alignment = TextAlignmentOptions.Left;
+                infoTxt.rectTransform.sizeDelta = new Vector2(-40, -40);
+                life.InfoText = infoTxt;
+
+                // 4. STATUS PANEL
+                GameObject statusPanel = CreateResponsivePanel(canvas.transform, "StatusPanel", new Vector2(0.1f, 0.55f), new Vector2(0.9f, 0.62f), new Color(0.1f, 0.1f, 0.1f, 0.9f));
+                var statusTxt = CreateTextInPanel(statusPanel, "StatusText", 30);
+                statusTxt.text = "SİSTEM HAZIR...";
+                statusTxt.alignment = TextAlignmentOptions.Center;
+                life.StatusLabel = statusTxt;
+
+                // 5. BUTTONS (4 Buttons)
+                CreateInteractionButton(canvas.transform, "Protein Diyeti", "SetHighProteinDiet", typeof(LifestyleButtonHelper), new Vector2(0.05f, 0.16f), new Vector2(0.48f, 0.24f), new Color(0, 0.6f, 0.4f));
+                CreateInteractionButton(canvas.transform, "Yağlı Diyet", "SetHighFatDiet", typeof(LifestyleButtonHelper), new Vector2(0.52f, 0.16f), new Vector2(0.95f, 0.24f), new Color(0.8f, 0.15f, 0.1f));
+                CreateInteractionButton(canvas.transform, "Egzersiz YAP", "ToggleExerciseTrue", typeof(LifestyleButtonHelper), new Vector2(0.05f, 0.05f), new Vector2(0.48f, 0.13f), new Color(0, 0.5f, 0.9f));
+                CreateInteractionButton(canvas.transform, "Egzersiz DUR", "ToggleExerciseFalse", typeof(LifestyleButtonHelper), new Vector2(0.52f, 0.05f), new Vector2(0.95f, 0.13f), new Color(0.4f, 0.4f, 0.4f));
+
+                // 6. Home Button (Manual Add because we are not using SetupScenarioHUD)
+                GameObject homeBtn = CreateResponsivePanel(canvas.transform, "HomeBtn", new Vector2(0.02f, 0.93f), new Vector2(0.2f, 0.98f), new Color(0.2f, 0.2f, 0.2f));
+                var homeTxt = new GameObject("X").AddComponent<TextMeshProUGUI>();
+                homeTxt.transform.SetParent(homeBtn.transform, false); homeTxt.text = "<- MENU";
+                homeTxt.fontSize = 30; homeTxt.alignment = TextAlignmentOptions.Center;
+                var bHome = homeBtn.AddComponent<Button>();
+                var loader = homeBtn.AddComponent<MenuSceneLoader>();
+                loader.targetScene = "MainLauncher";
+                UnityEventTools.AddPersistentListener(bHome.onClick, loader.LoadTarget);
+            });
+        }
+
         private static void SetupBaseScene(string scenePath, System.Action<GameObject, GameObject> onReady)
         {
             if (EditorApplication.isPlaying) EditorApplication.isPlaying = false;
@@ -79,7 +147,7 @@ namespace LiverTransplantAR.EditorTools
             // 2b. Background (Removed per user request)
 
             // Liver
-            string liverPath = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - now with the fucking base colours included.fbx";
+            string liverPath = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - ";
             GameObject liverPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(liverPath);
             GameObject liverInstance = null;
             if (liverPrefab != null) {
@@ -95,7 +163,11 @@ namespace LiverTransplantAR.EditorTools
                     
                     Material mat = new Material(Shader.Find("Custom/LiverOrganicShader"));
                     if (mat.shader == null) mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                    mat.color = new Color(0.7f, 0.2f, 0.2f);
+                    
+                    Color initialColor = new Color(0.7f, 0.2f, 0.2f);
+                    if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", initialColor);
+                    else if (mat.HasProperty("_Color")) mat.color = initialColor;
+
                     foreach (var r in rs) r.material = mat;
 
                     // RESTORE ROTATION
@@ -273,6 +345,17 @@ namespace LiverTransplantAR.EditorTools
             UnityEventTools.AddPersistentListener(bHome.onClick, loader.LoadTarget);
 
             return res;
+        }
+
+        private static void CreateInteractionButton(Transform canvas, string name, string method, System.Type helperType, Vector2 min, Vector2 max, Color color)
+        {
+            GameObject btn = CreateResponsivePanel(canvas, "Btn_" + name, min, max, color);
+            var t = CreateTextInPanel(btn, "Label", 40); t.text = "<b>" + name + "</b>";
+            t.alignment = TextAlignmentOptions.Center;
+            t.enableWordWrapping = false;
+            btn.AddComponent<Button>();
+            var h = btn.AddComponent(helperType);
+            h.GetType().GetField("methodName").SetValue(h, method);
         }
 
         private static void AddHUDDecoration(GameObject panel, Color glowColor)
