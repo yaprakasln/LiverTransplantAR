@@ -21,10 +21,10 @@ Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenera
 
 | Ekip Üyesi | Rolü & Projedeki Sorumluluğu (Tek Cümleyle) | Önem (Katkı) Yüzdesi |
 | :--- | :--- | :---: |
-| **Yaprak ASLAN** | Proje yönetimi, AR Foundation entegrasyonu, düzlem tespiti ve git süreçlerinin yönetimini yürütmüştür. | %25 |
-| **Yusuf DOĞAN** | Mobil uyumlu UI/HUD tasarımı, sahne geçiş butonları ve görsel arayüzün iyileştirilmesini üstlenmiştir. | %25 |
-| **Ebrar Sena MANGAN** | Senaryo akış mimarisi, Scriptable Object veri modelleri ve simülasyon mantığını kodlamıştır. | %25 |
-| **Asiye KAYMAK** | Karaciğer mesh modelleri, URP tıbbi shader'larının geliştirilmesi ve görsel optimizasyonu yapmıştır. | %25 |
+| **Yaprak ASLAN** | Proje yönetimi, AR entegrasyonu ve **Senaryo 1 (Onarım Süreci)** geliştirilmesini yürütmüştür. | %25 |
+| **Yusuf DOĞAN** | Mobil uyumlu UI/HUD tasarımı ve **Senaryo 2 (İlaç Uyumu)** geliştirilmesini üstlenmiştir. | %25 |
+| **Ebrar Sena MANGAN** | Senaryo akış mimarisi ve **Senaryo 3 (Uyumsuzluk ve Red)** geliştirilmesini kodlamıştır. | %25 |
+| **Asiye KAYMAK** | Karaciğer mesh modelleri, URP shader tasarımı ve **Senaryo 4 (Yaşam Tarzı ve Sağlık)** geliştirilmesini yapmıştır. | %25 |
 
 ---
 
