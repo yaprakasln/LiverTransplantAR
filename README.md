@@ -8,7 +8,7 @@
 
 * **Öğrenci No / Adı Soyadı:** 
   * `[235541301]` - **Yaprak ASLAN** (Scrum Master)
-  * `[215541044]` - **Asiye KAYMAK** (Geliştirici)
+  * `[215541097]` - **Asiye KAYMAK** (Geliştirici)
   * `[235541139]` - **Ebrar Sena MANGAN** (Geliştirici)
   * `[205541001]` - **Yusuf DOĞAN** (Geliştirici)
 
