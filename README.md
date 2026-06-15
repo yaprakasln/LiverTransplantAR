@@ -21,10 +21,10 @@ Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenera
 
 | Ekip Üyesi | Rolü & Projedeki Sorumluluğu (Tek Cümleyle) | Önem (Katkı) Yüzdesi |
 | :--- | :--- | :---: |
-| **Yaprak ASLAN** (Scrum Master)| Proje yönetimi, AR Foundation entegrasyonu, Seneryo 1(Onarım Süreci) | %25 |
+| **Yaprak ASLAN** | Scrum Master, AR Entegrasyonu ve Senaryo 1 (Onarım Süreci) | %25 |
+| **Yusuf DOĞAN** | Senaryo 2 (İlaç Uyumu) | %25 |
+| **Ebrar Sena MANGAN** | Senaryo 3 (Uyumsuzluk ve Red) | %25 |
 | **Asiye KAYMAK** | Senaryo 4 (Yaşam Tarzı ve Sağlık) | %25 |
-| **Yusuf DOĞAN** | Senaryo 2 (İlaç Durumu) | %25 |
-| **Ebrar Sena MANGAN** | Senaryo 3 (Uyumsuzluk ve Red | %25 |
 
 ---
 
@@ -58,7 +58,7 @@ Nakil sonrası hayat kalitesini artırmak için yapılması gerekenler.
 - **AR Teknolojisi:** AR Foundation (ARCore/ARKit) ile gerçek dünya entegrasyonu.
 - **Görselleştirme:** URP (Universal Render Pipeline) tabanlı özel tıbbi shader'lar.
 - **Etkileşim:** Seçim tabanlı senaryo yönetimi (FlowManager).
-- **Platform:** Android & iOS (Mobil AR).
+- **Platform:** Android & iOS (Mobil AR). Geliştirilen uygulama hem Android hem de iOS fiziksel mobil cihazlarında test edilmiş ve doğrudan çalıştığı doğrulanmıştır.
 
 ---
 
