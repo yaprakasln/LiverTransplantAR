@@ -21,7 +21,7 @@ Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenera
 
 | Ekip Üyesi | Rolü & Projedeki Sorumluluğu (Tek Cümleyle) | Önem (Katkı) Yüzdesi |
 | :--- | :--- | :---: |
-| **Yaprak ASLAN** | Proje yönetimi, AR Foundation entegrasyonu, Seneryo 1(Onarım Süreci) | %25 |
+| **Yaprak ASLAN** (Scrum Master)| Proje yönetimi, AR Foundation entegrasyonu, Seneryo 1(Onarım Süreci) | %25 |
 | **Asiye KAYMAK** | Senaryo 4 (Yaşam Tarzı ve Sağlık) | %25 |
 | **Yusuf DOĞAN** | Senaryo 2 (İlaç Durumu) | %25 |
 | **Ebrar Sena MANGAN** | Senaryo 3 (Uyumsuzluk ve Red | %25 |
