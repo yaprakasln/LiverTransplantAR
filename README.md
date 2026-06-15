@@ -7,10 +7,10 @@
 ## 📄 Öğrenci Sınav Bilgileri
 
 * **Öğrenci No / Adı Soyadı:** 
-  * `[Lütfen Öğrenci No Yazınız]` - **Yaprak ASLAN** (Scrum Master)
-  * `[Lütfen Öğrenci No Yazınız]` - **Yusuf DOĞAN** (Geliştirici)
-  * `[Lütfen Öğrenci No Yazınız]` - **Ebrar Sena MANGAN** (Geliştirici)
-  * `[Lütfen Öğrenci No Yazınız]` - **Asiye KAYMAK** (Geliştirici)
+  * 235541301 - **Yaprak ASLAN** (Scrum Master)
+  * 215541044 - **Asiye KAYMAK** (Geliştirici)
+  * 235541139 - **Ebrar Sena MANGAN** (Geliştirici)
+  * 205541001- **Yusuf DOĞAN** (Geliştirici)
 
 ### 🎯 Proje Konusu (Tek Cümleyle)
 Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenerasyon, ilaç uyumu, organ reddi ve yaşam tarzı) arttırılmış gerçeklik (AR) ortamında mobil cihazlar aracılığıyla görselleştirerek tıp eğitimi ve hasta bilgilendirmesi süreçlerini iyileştirmeyi amaçlamaktadır.
