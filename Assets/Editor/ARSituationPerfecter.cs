@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using LiverTransplantAR.Data;
 using LiverTransplantAR.UI;
 using LiverTransplantAR.Scenarios;
+using LiverTransplantAR.AR;
+using UnityEngine.XR.ARFoundation;
 using UnityEditor.Events;
 
 namespace LiverTransplantAR.EditorTools
@@ -22,10 +24,145 @@ namespace LiverTransplantAR.EditorTools
             });
         }
 
+        [MenuItem("Liver AR/AR TOOLS/AR-IFY CURRENT SCENE")]
+        public static void ARifyScene()
+        {
+            // 1. Find or Create AR Session
+            GameObject arSession = GameObject.Find("AR Session");
+            if (arSession == null) {
+                arSession = new GameObject("AR Session");
+                arSession.AddComponent<ARSession>();
+                arSession.AddComponent<ARInputManager>();
+            }
+
+            // 2. Find or Create XR Origin
+            var xrOrigin = GameObject.FindObjectOfType<Unity.XR.CoreUtils.XROrigin>();
+            GameObject xrOriginObj;
+            if (xrOrigin == null) {
+                xrOriginObj = new GameObject("XR Origin");
+                xrOrigin = xrOriginObj.AddComponent<Unity.XR.CoreUtils.XROrigin>();
+                
+                GameObject cameraOffset = new GameObject("Camera Offset");
+                cameraOffset.transform.SetParent(xrOriginObj.transform);
+                xrOrigin.CameraFloorOffsetObject = cameraOffset;
+
+                GameObject mainCam = GameObject.FindWithTag("MainCamera");
+                if (mainCam == null) mainCam = new GameObject("Main Camera", typeof(Camera));
+                mainCam.transform.SetParent(cameraOffset.transform);
+                mainCam.tag = "MainCamera";
+                var cam = mainCam.GetComponent<Camera>();
+                cam.farClipPlane = 100f;
+                mainCam.AddComponent<ARCameraManager>();
+                mainCam.AddComponent<ARCameraBackground>();
+                
+                // Add Tracked Pose Driver for AR tracking
+                var tpd = mainCam.AddComponent<UnityEngine.InputSystem.XR.TrackedPoseDriver>();
+                xrOrigin.Camera = cam;
+            } else {
+                xrOriginObj = xrOrigin.gameObject;
+            }
+
+            // 3. Add AR Managers (Minimal for Fixed Position)
+            if (!xrOriginObj.GetComponent<ARRaycastManager>()) xrOriginObj.AddComponent<ARRaycastManager>();
+            
+            var fixedPlacement = xrOriginObj.GetComponent<FixedARPlacement>();
+            if (!fixedPlacement) fixedPlacement = xrOriginObj.AddComponent<FixedARPlacement>();
+            
+            // Adjust position for Scenario 3 (Smaller model needs to be higher and maybe closer)
+            string currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+            if (currentScene.Contains("Scenario3")) {
+                fixedPlacement.VerticalOffset = 0.9f; // Lift it up
+                fixedPlacement.DistanceInFront = 1.3f; // Slightly closer
+            } else {
+                fixedPlacement.VerticalOffset = -0.1f;
+                fixedPlacement.DistanceInFront = 2.0f;
+            }
+
+            // Remove old table-based managers if they exist to avoid confusion
+            var oldPlane = xrOriginObj.GetComponent<ARPlaneManager>();
+            if (oldPlane) DestroyImmediate(oldPlane);
+            var oldPlace = xrOriginObj.GetComponent<ARPlacementManager>();
+            if (oldPlace) DestroyImmediate(oldPlace);
+
+            // 4. Find Liver Content (Deep Search including inactive)
+            GameObject liverContent = GameObject.Find("Liver_Pivot");
+            if (liverContent == null) {
+                // Look for anything with "liver" in the name, even if INACTIVE
+                var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                foreach (var obj in allObjects) {
+                    // Filter to only look for scene objects (not assets)
+                    if (UnityEditor.EditorUtility.IsPersistent(obj)) continue;
+                    
+                    if (obj.name.ToLower().Contains("liver") && (obj.transform.parent == null || obj.name == "AR_Liver_Pivot")) {
+                        liverContent = obj;
+                        break;
+                    }
+                }
+            }
+
+            if (liverContent != null) {
+                fixedPlacement.ContentToPlace = liverContent;
+                liverContent.SetActive(true);
+                
+                // Position Reset
+                liverContent.transform.position = Vector3.zero;
+                liverContent.layer = 0; // Default layer
+
+                // NORMALIZE SCALE: Make it exactly 2.0 meters on its largest side
+                Renderer[] rs = liverContent.GetComponentsInChildren<Renderer>(true);
+                if (rs.Length > 0) {
+                    Bounds b = rs[0].bounds;
+                    foreach (var r in rs) {
+                        b.Encapsulate(r.bounds);
+                        r.gameObject.layer = 0; // Force children to default layer
+                    }
+                    float maxSide = Mathf.Max(b.size.x, b.size.y, b.size.z);
+                    if (maxSide > 0) {
+                        // NORMALIZE SCALE: 
+                        // NORMALIZE SCALE: Scenario 3 stays original (3.8), others are 5x larger (19.0)
+                        // NORMALIZE SCALE: Scenario 3 stays original (2.5), others are 25.0f
+                        string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                        float targetSize = 24.0f; 
+                        if (sceneName.Contains("Scenario1")) targetSize = 5.0f; 
+                        else if (sceneName.Contains("Scenario3")) targetSize = 2.5f; 
+                        else if (sceneName.Contains("Scenario4")) targetSize = 8.0f;
+                        
+                        float currentScale = liverContent.transform.localScale.x;
+                        float newScale = currentScale * (targetSize / maxSide);
+                        liverContent.transform.localScale = Vector3.one * newScale;
+                        
+                        Debug.Log($"<color=lime>AR-IFY SUCCESS:</color> Object '{liverContent.name}' scaled. WorldSize: {maxSide}, Target: {targetSize}, New Scale: {newScale}");
+                    }
+                } else {
+                    liverContent.transform.localScale = Vector3.one * 5f; 
+                }
+                
+                Debug.Log($"<color=cyan>AR-IFY:</color> Applied to {liverContent.name} in 3scene {UnityEngine.SceneManagement.SceneManager.GetActiveScene().name}");
+            } else {
+                Debug.LogWarning("<color=orange>AR-IFY:</color> Could not find any liver object in the scene!");
+            }
+
+            // 5. Fix UI (Canvas) for AR
+            Canvas canvas = GameObject.FindObjectOfType<Canvas>();
+            if (canvas != null) {
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                var scaler = canvas.GetComponent<UnityEngine.UI.CanvasScaler>();
+                if (scaler != null) {
+                    scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                    scaler.referenceResolution = new Vector2(1080, 1920);
+                }
+                Debug.Log("<color=cyan>AR-IFY:</color> UI Canvas optimized for AR.");
+            }
+
+            Debug.Log("<color=cyan>AR-IFY:</color> Scene is now ready for AR Placement.");
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
+        }
+
         [MenuItem("Liver AR/1. CREATE RECOVERY SCENE")]
         public static void CreateRecoveryScene()
         {
             SetupBaseScene("Assets/Scenes/Scenario1.unity", (canvas, liver) => {
+                if (liver == null) { Debug.LogError("Liver object is null!"); return; }
                 // Add Recovery Manager
                 var reg = liver.transform.parent.gameObject.AddComponent<LiverRegeneration>();
                 reg.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
@@ -44,6 +181,7 @@ namespace LiverTransplantAR.EditorTools
         public static void CreateMedicationScene()
         {
             SetupBaseScene("Assets/Scenes/Scenario2.unity", (canvas, liver) => {
+                if (liver == null) { Debug.LogError("Liver object is null!"); return; }
                 var med = liver.transform.parent.gameObject.AddComponent<MedicationManager>();
                 med.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
                 
@@ -60,6 +198,7 @@ namespace LiverTransplantAR.EditorTools
         public static void CreateRejectionScene()
         {
             SetupBaseScene("Assets/Scenes/Scenario3.unity", (canvas, liver) => {
+                if (liver == null) { Debug.LogError("Liver object is null!"); return; }
                 var rej = liver.transform.parent.gameObject.AddComponent<RejectionManager>();
                 rej.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
                 
@@ -76,11 +215,12 @@ namespace LiverTransplantAR.EditorTools
         public static void CreateLifestyleScene()
         {
             SetupBaseScene("Assets/Scenes/Scenario4_Final.unity", (canvas, liver) => {
+                if (liver == null) { Debug.LogError("Liver object is null!"); return; }
                 var life = liver.transform.parent.gameObject.AddComponent<LifestyleManager>();
                 life.Data = AssetDatabase.LoadAssetAtPath<SimulationState>("Assets/NewSimulationState.asset");
                 
-                // 1. Setup Liver Scale for this scenario
-                liver.transform.localScale = Vector3.one * 3.2f;
+                // 1. Setup Liver Scale for Scenario 4 (17.5f targetSize - Very slightly smaller than baseline)
+                liver.transform.localScale = Vector3.one * 17.5f;
                 liver.transform.localPosition = new Vector3(0, 0.05f, 0);
 
                 // 2. HEADER PANEL
@@ -147,7 +287,7 @@ namespace LiverTransplantAR.EditorTools
             // 2b. Background (Removed per user request)
 
             // Liver
-            string liverPath = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - ";
+            string liverPath = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - now with the fucking base colours included.fbx";
             GameObject liverPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(liverPath);
             GameObject liverInstance = null;
             if (liverPrefab != null) {
@@ -158,8 +298,14 @@ namespace LiverTransplantAR.EditorTools
                 if (rs.Length > 0) {
                     Bounds b = rs[0].bounds; foreach (var r in rs) b.Encapsulate(r.bounds);
                     liverInstance.transform.localPosition = -b.center;
-                    // INCREASED SCALE (from 2.5 to 3.8) for better visibility
-                    pivot.transform.localScale = Vector3.one * (3.8f / Mathf.Max(b.size.x, b.size.y, b.size.z));
+                    // NORMALIZE SCALE: Scenario 3 stays original (3.8), others are 5x larger (19.0)
+                    string sceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+                    float targetSize = 25.0f;
+                    if (sceneName.Contains("Scenario1")) targetSize = 4.0f; // Radikal küçültme yapıldı
+                    else if (sceneName.Contains("Scenario3")) targetSize = 2.5f;
+                    else if (sceneName.Contains("Scenario4")) targetSize = 12.0f;
+
+                    pivot.transform.localScale = Vector3.one * (targetSize / Mathf.Max(b.size.x, b.size.y, b.size.z));
                     
                     Material mat = new Material(Shader.Find("Custom/LiverOrganicShader"));
                     if (mat.shader == null) mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));

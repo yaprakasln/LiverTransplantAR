@@ -6,7 +6,7 @@ public class HierarchyLogger : EditorWindow
     [MenuItem("Tools/Log Liver Hierarchy")]
     public static void LogHierarchy()
     {
-        string path = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - now with the fucking base colours included.fbx";
+        string path = "Assets/human-liver-and-gallbladder/source/Liver project - Copy/liver exported for sketchfab - ";
         GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
         if (prefab != null) {
             Debug.Log("--- Liver Hierarchy ---");
