@@ -7,10 +7,10 @@
 ## 📄 Öğrenci Sınav Bilgileri
 
 * **Öğrenci No / Adı Soyadı:** 
-  * `[Lütfen Öğrenci No Yazınız]` - **Yaprak ASLAN** (Scrum Master)
-  * `[Lütfen Öğrenci No Yazınız]` - **Yusuf DOĞAN** (Geliştirici)
-  * `[Lütfen Öğrenci No Yazınız]` - **Ebrar Sena MANGAN** (Geliştirici)
-  * `[Lütfen Öğrenci No Yazınız]` - **Asiye KAYMAK** (Geliştirici)
+  * `[235541301]` - **Yaprak ASLAN** (Scrum Master)
+  * `[215541044]` - **Asiye KAYMAK** (Geliştirici)
+  * `[235541139]` - **Ebrar Sena MANGAN** (Geliştirici)
+  * `[205541001]` - **Yusuf DOĞAN** (Geliştirici)
 
 ### 🎯 Proje Konusu (Tek Cümleyle)
 Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenerasyon, ilaç uyumu, organ reddi ve yaşam tarzı) arttırılmış gerçeklik (AR) ortamında mobil cihazlar aracılığıyla görselleştirerek tıp eğitimi ve hasta bilgilendirmesi süreçlerini iyileştirmeyi amaçlamaktadır.
@@ -21,10 +21,10 @@ Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenera
 
 | Ekip Üyesi | Rolü & Projedeki Sorumluluğu (Tek Cümleyle) | Önem (Katkı) Yüzdesi |
 | :--- | :--- | :---: |
-| **Yaprak ASLAN** | Proje yönetimi, AR Foundation entegrasyonu, düzlem tespiti ve git süreçlerinin yönetimini yürütmüştür. | %25 |
-| **Yusuf DOĞAN** | Mobil uyumlu UI/HUD tasarımı, sahne geçiş butonları ve görsel arayüzün iyileştirilmesini üstlenmiştir. | %25 |
-| **Ebrar Sena MANGAN** | Senaryo akış mimarisi, Scriptable Object veri modelleri ve simülasyon mantığını kodlamıştır. | %25 |
-| **Asiye KAYMAK** | Karaciğer mesh modelleri, URP tıbbi shader'larının geliştirilmesi ve görsel optimizasyonu yapmıştır. | %25 |
+| **Yaprak ASLAN** | Proje yönetimi, AR Foundation entegrasyonu, Seneryo 1(Onarım Süreci) | %25 |
+| **Asiye KAYMAK** | Senaryo 4 (Yaşam Tarzı ve Sağlık) | %25 |
+| **Yusuf DOĞAN** | Senaryo 2 (İlaç Durumu) | %25 |
+| **Ebrar Sena MANGAN** | Senaryo 3 (Uyumsuzluk ve Red | %25 |
 
 ---
 
