@@ -4,6 +4,30 @@
 
 ---
 
+## 📄 Öğrenci Sınav Bilgileri
+
+* **Öğrenci No / Adı Soyadı:** 
+  * `[Lütfen Öğrenci No Yazınız]` - **Yaprak ASLAN** (Scrum Master)
+  * `[Lütfen Öğrenci No Yazınız]` - **Yusuf DOĞAN** (Geliştirici)
+  * `[Lütfen Öğrenci No Yazınız]` - **Ebrar Sena MANGAN** (Geliştirici)
+  * `[Lütfen Öğrenci No Yazınız]` - **Asiye KAYMAK** (Geliştirici)
+
+### 🎯 Proje Konusu (Tek Cümleyle)
+Bu proje, karaciğer nakli operasyonu sonrasındaki kritik süreçleri (rejenerasyon, ilaç uyumu, organ reddi ve yaşam tarzı) arttırılmış gerçeklik (AR) ortamında mobil cihazlar aracılığıyla görselleştirerek tıp eğitimi ve hasta bilgilendirmesi süreçlerini iyileştirmeyi amaçlamaktadır.
+
+---
+
+## 👥 Ekip Üyeleri, Sorumluluklar ve Katkı Payları
+
+| Ekip Üyesi | Rolü & Projedeki Sorumluluğu (Tek Cümleyle) | Önem (Katkı) Yüzdesi |
+| :--- | :--- | :---: |
+| **Yaprak ASLAN** | Proje yönetimi, AR Foundation entegrasyonu, düzlem tespiti ve git süreçlerinin yönetimini yürütmüştür. | %25 |
+| **Yusuf DOĞAN** | Mobil uyumlu UI/HUD tasarımı, sahne geçiş butonları ve görsel arayüzün iyileştirilmesini üstlenmiştir. | %25 |
+| **Ebrar Sena MANGAN** | Senaryo akış mimarisi, Scriptable Object veri modelleri ve simülasyon mantığını kodlamıştır. | %25 |
+| **Asiye KAYMAK** | Karaciğer mesh modelleri, URP tıbbi shader'larının geliştirilmesi ve görsel optimizasyonu yapmıştır. | %25 |
+
+---
+
 ## 🚀 Proje Senaryoları
 
 Uygulama, kullanıcının seçimlerine göre şekillenen 4 ana senaryo üzerinden ilerler:
@@ -38,11 +62,30 @@ Nakil sonrası hayat kalitesini artırmak için yapılması gerekenler.
 
 ---
 
-## 👥 Ekip Üyeleri
-- **Yaprak ASLAN(Scrum Master)**
-- **Yusuf DOĞAN**
-- **Ebrar Sena MANGAN**
-- **Asiye KAYMAK**
+## ⚙️ Projede Değişiklik Yapma ve Geliştirici Kılavuzu (Başlangıç Rehberi)
 
----
+Bu projeyi ilk kez açacak ve üzerinde değişiklik yapacak bir geliştiricinin izlemesi gereken adımlar:
 
+### 1. Ön Gereksinimler
+* **Unity Sürümü:** Proje **Unity 2022.3 LTS** sürümü kullanılarak geliştirilmiştir. Unity Hub üzerinden bu sürümü yükleyin.
+* **Mobil Platform Desteği:** Build alabilmek için Unity kurulumunda **Android Build Support** veya **iOS Build Support** modüllerinin işaretli olduğundan emin olun.
+
+### 2. Projenin Açılması
+1. Bu GitHub reposunu bilgisayarınıza klonlayın: `git clone https://github.com/yaprakasln/LiverTransplantAR.git`
+2. Unity Hub'ı açın, **Add** butonuna tıklayarak projenin klasörünü seçin ve projeyi açın.
+3. Proje açıldığında gerekli paketler (AR Foundation, Universal RP) otomatik olarak yüklenecektir.
+
+### 3. Sahne Yapısı ve Değişiklik Yapma
+* **Giriş Sahnesi:** Ana menü ve başlangıç sahneleri `Assets/Scenes/MainLauncher.unity` dosyası altındadır. Uygulama buradan başlatılmalıdır.
+* **Senaryolar:** Senaryoların sahneleri `Scenario1.unity`, `Scenario2.unity`, `Scenario3.unity` ve `Scenario4_Final.unity` adıyla `Assets/Scenes/` klasöründe yer alır.
+* **Kodlarda Değişiklik Yapma:** AR yerleştirme mantığı `Assets/Scripts/AR/ARPlacementManager.cs` ve `FixedARPlacement.cs` dosyalarındadır. Karaciğer modellerini düzenlemek veya ölçeklendirmek için `Assets/Editor/ARSituationPerfecter.cs` editör scriptini inceleyebilir ve Unity üst menüsündeki "Liver AR" araçlarını kullanabilirsiniz.
+
+### 4. Mobil Cihaza Derleme (Build) Alma
+* **Android (APK) için:**
+  1. Unity menüsünden `File > Build Settings` penceresini açın.
+  2. Platform listesinden **Android**'i seçin ve **Switch Platform** butonuna tıklayın.
+  3. Cihazınızı USB ile bilgisayara bağlayıp (Geliştirici Seçenekleri açık şekilde) **Build And Run** butonuna basarak doğrudan cihaza yükleyebilir veya **Build** diyerek `.apk` çıktısı alabilirsiniz.
+* **iOS için:**
+  1. Platform listesinden **iOS**'u seçip **Switch Platform** yapın.
+  2. **Build** butonuna basarak bir Xcode projesi oluşturun.
+  3. Oluşan projeyi Mac bilgisayarınızda Xcode ile açarak cihazınıza yükleyin.
